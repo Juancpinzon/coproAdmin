@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-// ─── NavBar ───────────────────────────────────────────────────────────────────
+// âââ NavBar âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const NavBar = () => (
   <motion.nav
@@ -48,7 +48,7 @@ const NavBar = () => (
           to="/login"
           className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors relative group"
         >
-          Iniciar sesión
+          Iniciar sesiÃ³n
           <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full" />
         </Link>
         <Link to="/registro">
@@ -61,7 +61,7 @@ const NavBar = () => (
   </motion.nav>
 )
 
-// ─── HeroSection ──────────────────────────────────────────────────────────────
+// âââ HeroSection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const heroWords1 = ['Administra', 'tu', 'conjunto']
 const heroWords2 = ['sin', 'Excel', 'ni', 'WhatsApp']
@@ -124,7 +124,7 @@ const HeroSection = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', bounce: 0.5, delay: 0.1 }}
         >
-          Hecho para tu pa�s
+          Hecho para tu país
         </motion.div>
 
         <motion.h1
@@ -163,8 +163,8 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
         >
-          La plataforma definitiva para la gestión financiera y administrativa de comunidades.
-          Ahorra tiempo, evita errores y mantén a todos informados.
+          La plataforma definitiva para la gestiÃ³n financiera y administrativa de comunidades.
+          Ahorra tiempo, evita errores y mantÃ©n a todos informados.
         </motion.p>
 
         <motion.div
@@ -190,7 +190,7 @@ const HeroSection = () => {
               className="h-14 px-8 text-lg border-white/30 text-white hover:bg-white/10 hover:text-white bg-transparent"
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              Ver características
+              Ver caracterÃ­sticas
             </Button>
           </motion.div>
         </motion.div>
@@ -214,9 +214,9 @@ const HeroSection = () => {
   )
 }
 
-// ─── StatsBar ─────────────────────────────────────────────────────────────────
+// âââ StatsBar âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-const statItems = ['Fácil configuración', 'Soporte en español', 'Datos seguros']
+const statItems = ['FÃ¡cil configuraciÃ³n', 'Soporte en espaÃ±ol', 'Datos seguros']
 
 const StatsBar = () => (
   <section className="bg-blue-600 py-10 px-4">
@@ -232,7 +232,7 @@ const StatsBar = () => (
   </section>
 )
 
-// ─── FeaturesSection ──────────────────────────────────────────────────────────
+// âââ FeaturesSection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 interface Feature {
   Icon: LucideIcon
@@ -245,14 +245,14 @@ const features: Feature[] = [
   {
     Icon: Receipt,
     color: 'bg-blue-100 text-blue-600',
-    title: 'Cobros automáticos',
-    desc: 'Genera cuotas de administración masivamente y mantén el estado de cuenta actualizado al instante.',
+    title: 'Cobros automÃ¡ticos',
+    desc: 'Genera cuotas de administraciÃ³n masivamente y mantÃ©n el estado de cuenta actualizado al instante.',
   },
   {
     Icon: Calendar,
     color: 'bg-purple-100 text-purple-600',
     title: 'Reservas de zonas',
-    desc: 'Permite a los residentes reservar zonas comunes online. Bloqueo automático para morosos.',
+    desc: 'Permite a los residentes reservar zonas comunes online. Bloqueo automÃ¡tico para morosos.',
   },
   {
     Icon: MessageSquare,
@@ -269,8 +269,8 @@ const features: Feature[] = [
   {
     Icon: Wallet,
     color: 'bg-amber-100 text-amber-600',
-    title: 'Préstamos',
-    desc: 'Otorga créditos, calcula intereses y haz seguimiento a las cuotas de amortización.',
+    title: 'PrÃ©stamos',
+    desc: 'Otorga crÃ©ditos, calcula intereses y haz seguimiento a las cuotas de amortizaciÃ³n.',
   },
   {
     Icon: BarChart3,
@@ -305,7 +305,7 @@ const FeaturesSection = () => {
             Todo lo que necesitas en un solo lugar
           </h2>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Soluciones adaptadas para Propiedad Horizontal y Fondos Familiares.
+            Soluciones adaptadas para Propiedad Horizontal.
           </p>
         </motion.div>
 
@@ -337,12 +337,12 @@ const FeaturesSection = () => {
   )
 }
 
-// ─── HowItWorksSection ────────────────────────────────────────────────────────
+// âââ HowItWorksSection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const steps = [
-  { n: 1, title: 'Crea tu cuenta', desc: 'Regístrate en minutos, sin tarjeta de crédito.' },
+  { n: 1, title: 'Crea tu cuenta', desc: 'RegÃ­strate en minutos, sin tarjeta de crÃ©dito.' },
   { n: 2, title: 'Configura tu conjunto', desc: 'Agrega unidades, residentes y zonas comunes.' },
-  { n: 3, title: 'Invita a residentes', desc: 'Ellos reciben acceso al portal desde el primer día.' },
+  { n: 3, title: 'Invita a residentes', desc: 'Ellos reciben acceso al portal desde el primer dÃ­a.' },
 ]
 
 const HowItWorksSection = () => {
@@ -398,32 +398,24 @@ const HowItWorksSection = () => {
   )
 }
 
-// ─── PricingSection ───────────────────────────────────────────────────────────
+// âââ PricingSection âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const plans = [
-  {
-    name: 'Fondo Familiar',
-    desc: 'Para familias y grupos pequeños',
-    monthly: 29900,
-    annual: 299000,
-    features: ['Hasta 30 miembros', 'Control de aportes y préstamos', 'Reportes financieros', 'Soporte por email'],
-    highlight: false,
-  },
   {
     name: 'PH Básico',
     desc: 'Para copropiedades pequeñas',
     monthly: 89000,
     annual: 890000,
     features: ['Hasta 50 unidades', 'Cobros automáticos', 'PQR digital', 'Portal de residentes', 'Soporte prioritario'],
-    highlight: true,
+    highlight: false,
   },
   {
     name: 'PH Pro',
     desc: 'Para conjuntos residenciales grandes',
     monthly: 149000,
     annual: 1490000,
-    features: ['Unidades ilimitadas', 'Reservas de zonas', 'Presupuesto anual', 'Múltiples administradores', 'Soporte 24/7'],
-    highlight: false,
+    features: ['51 unidades en adelante', 'Reservas de zonas', 'Presupuesto anual', 'Múltiples administradores', 'Soporte 24/7'],
+    highlight: true,
   },
 ]
 
@@ -464,7 +456,7 @@ const PricingSection = () => {
               }`}
             >
               Anual
-              <span className="text-xs font-bold text-green-500">−2 meses</span>
+              <span className="text-xs font-bold text-green-500">â2 meses</span>
             </button>
           </div>
         </motion.div>
@@ -486,7 +478,7 @@ const PricingSection = () => {
               {plan.highlight && (
                 <div className="flex items-center gap-1 text-blue-200 text-xs font-bold uppercase tracking-wider mb-3">
                   <Star className="w-3 h-3 fill-current" />
-                  Más popular
+                  MÃ¡s popular
                 </div>
               )}
               <h3 className={`text-xl font-bold mb-1 ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
@@ -510,7 +502,7 @@ const PricingSection = () => {
                       ${formatCOP(annual ? plan.annual : plan.monthly)}
                     </span>
                     <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-slate-400'}`}>
-                      /{annual ? 'año' : 'mes'}
+                      /{annual ? 'aÃ±o' : 'mes'}
                     </span>
                   </motion.div>
                 </AnimatePresence>
@@ -548,7 +540,7 @@ const PricingSection = () => {
   )
 }
 
-// ─── TestimonialsSection ──────────────────────────────────────────────────────
+// âââ TestimonialsSection ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // TODO: reemplazar con testimonios reales cuando tengas los primeros clientes
 
 const testimonials = [
@@ -556,22 +548,22 @@ const testimonials = [
     initials: 'CM',
     color: 'bg-blue-500',
     name: 'Carlos M.',
-    place: 'Conjunto Los Pinos, Bogotá',
-    text: 'Antes perdíamos horas en Excel. Ahora todo es automático y los residentes ven su estado de cuenta en tiempo real.',
+    place: 'Conjunto Los Pinos, BogotÃ¡',
+    text: 'Antes perdÃ­amos horas en Excel. Ahora todo es automÃ¡tico y los residentes ven su estado de cuenta en tiempo real.',
   },
   {
     initials: 'AR',
     color: 'bg-purple-500',
     name: 'Ana R.',
-    place: 'Torres del Norte, Medellín',
-    text: 'Los residentes pagan a tiempo porque ven su estado en tiempo real. La morosidad bajó un 40% en tres meses.',
+    place: 'Torres del Norte, MedellÃ­n',
+    text: 'Los residentes pagan a tiempo porque ven su estado en tiempo real. La morosidad bajÃ³ un 40% en tres meses.',
   },
   {
     initials: 'JP',
     color: 'bg-teal-500',
     name: 'Jorge P.',
     place: 'Ciudadela El Remanso, Cali',
-    text: 'El módulo de PQR nos ahorró conflictos con los residentes. Todo queda registrado y con trazabilidad.',
+    text: 'El mÃ³dulo de PQR nos ahorrÃ³ conflictos con los residentes. Todo queda registrado y con trazabilidad.',
   },
 ]
 
@@ -629,7 +621,7 @@ const TestimonialsSection = () => {
   )
 }
 
-// ─── FooterSection ────────────────────────────────────────────────────────────
+// âââ FooterSection ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const FooterSection = () => {
   const ref = useRef<HTMLElement>(null)
@@ -653,14 +645,14 @@ const FooterSection = () => {
               <span className="text-xl font-bold text-white">CoproAdmin</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              La plataforma de administración para comunidades .
+              La plataforma de administraciÃ³n para comunidades .
             </p>
           </div>
 
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Producto</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#features" className="hover:text-white transition-colors">Características</a></li>
+              <li><a href="#features" className="hover:text-white transition-colors">CaracterÃ­sticas</a></li>
               <li><a href="#pricing" className="hover:text-white transition-colors">Precios</a></li>
               <li><Link to="/registro" className="hover:text-white transition-colors">Registro</Link></li>
             </ul>
@@ -669,7 +661,7 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Soporte</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Documentación</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">DocumentaciÃ³n</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Contacto</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Estado del sistema</a></li>
             </ul>
@@ -678,7 +670,7 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Términos de uso</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">TÃ©rminos de uso</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Privacidad</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Cookies</a></li>
             </ul>
@@ -686,14 +678,14 @@ const FooterSection = () => {
         </div>
 
         <div className="border-t border-slate-800 pt-8 text-center text-sm">
-          © 2026 CoproAdmin. Todos los derechos reservados. Hecho con ❤️ .
+          Â© 2026 CoproAdmin. Todos los derechos reservados. Hecho con â¤ï¸ .
         </div>
       </div>
     </motion.footer>
   )
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// âââ Main âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const LandingPage = () => (
   <div className="min-h-screen font-sans overflow-x-hidden">
