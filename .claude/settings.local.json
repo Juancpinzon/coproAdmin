@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(node -e \"const df = require\\('date-fns'\\); console.log\\('setDate:', typeof df.setDate, 'addMonths:', typeof df.addMonths, 'format:', typeof df.format\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/date-fns/package.json'\\).version\\)\")",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
