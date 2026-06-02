@@ -87,7 +87,7 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
   const { data: tenant } = useTenant();
 
   const isPH = tenant?.tenant_type === "propiedad_horizontal";
-  const appName = isPH ? (tenant?.nombre ?? "FondoApp") : "FondoApp";
+  const appName = isPH ? (tenant?.nombre ?? "CoproAdmin") : "CoproAdmin";
 
   const navItems: NavItem[] = isPH
     ? miembro.rol === "admin_ph"
@@ -203,3 +203,4 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
 };
 
 export default AppLayout;
+

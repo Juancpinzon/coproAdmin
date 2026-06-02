@@ -41,7 +41,7 @@ const NavBar = () => (
         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
           <span className="text-white font-bold text-lg">F</span>
         </div>
-        <span className="text-xl font-bold text-blue-600">FondoApp</span>
+        <span className="text-xl font-bold text-blue-600">CoproAdmin</span>
       </motion.div>
       <div className="flex items-center gap-4">
         <Link
@@ -124,7 +124,7 @@ const HeroSection = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', bounce: 0.5, delay: 0.1 }}
         >
-          Hecho para Colombia
+          Hecho para tu pa�s
         </motion.div>
 
         <motion.h1
@@ -591,7 +591,7 @@ const TestimonialsSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Lo que dicen nuestros usuarios
           </h2>
-          <p className="text-slate-500 text-lg">Historias reales de comunidades colombianas.</p>
+          <p className="text-slate-500 text-lg">Historias reales de comunidades .</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -650,10 +650,10 @@ const FooterSection = () => {
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <span className="text-white font-bold">F</span>
               </div>
-              <span className="text-xl font-bold text-white">FondoApp</span>
+              <span className="text-xl font-bold text-white">CoproAdmin</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              La plataforma de administración para comunidades colombianas.
+              La plataforma de administración para comunidades .
             </p>
           </div>
 
@@ -686,7 +686,7 @@ const FooterSection = () => {
         </div>
 
         <div className="border-t border-slate-800 pt-8 text-center text-sm">
-          © 2026 FondoApp. Todos los derechos reservados. Hecho con ❤️ en Colombia.
+          © 2026 CoproAdmin. Todos los derechos reservados. Hecho con ❤️ .
         </div>
       </div>
     </motion.footer>
@@ -709,3 +709,4 @@ const LandingPage = () => (
 )
 
 export default LandingPage
+

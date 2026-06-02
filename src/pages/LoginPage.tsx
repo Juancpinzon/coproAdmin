@@ -83,7 +83,7 @@ const LoginPage = () => {
           <div className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
             <span className="text-2xl font-bold text-primary-foreground">F</span>
           </div>
-          <CardTitle className="text-2xl font-bold text-primary">FondoApp</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary">CoproAdmin</CardTitle>
           <CardDescription className="text-muted-foreground">
             Gestión de fondos familiares de ahorro
           </CardDescription>
@@ -188,3 +188,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
