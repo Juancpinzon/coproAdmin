@@ -305,7 +305,7 @@ const FeaturesSection = () => {
             Todo lo que necesitas en un solo lugar
           </h2>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Soluciones adaptadas para Propiedad Horizontal y Fondos Familiares.
+            Soluciones adaptadas para Propiedad Horizontal.
           </p>
         </motion.div>
 
