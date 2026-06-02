@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-let c = fs.readFileSync('LandingPage_original.tsx', 'utf8');
+let c = fs.readFileSync('src/pages/LandingPage.tsx', 'utf8');
 
 // Name and Subtitles
 c = c.replace(/FondoFácil/g, 'CoproAdmin');
@@ -42,7 +42,7 @@ const plansReplacement = `const plans = [
     highlight: true,
   },
 ]`;
-c = c.replace(/const plans = \[[\s\S]*?\]/m, plansReplacement);
+c = c.replace(/const plans = \[[\s\S]*?\n]/m, plansReplacement);
 
 // Fix grid layout for plans from 3 columns to 2 columns
 c = c.replace(/className="grid grid-cols-1 md:grid-cols-3 gap-8"/g, 'className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"');
