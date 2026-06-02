@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,6 +38,7 @@ function AppContent() {
   const { user, loading, signOut } = useAuth();
   const { data: miembro, isLoading: miembroLoading } = useCurrentMiembro(user);
   const { data: tenant, isLoading: tenantLoading } = useTenant();
+  const location = useLocation();
 
   if (loading || miembroLoading || tenantLoading) {
     return (
@@ -69,6 +70,15 @@ function AppContent() {
       : !tenant.suscripcion_activa
 
   if (suscripcionVencida) return <SuscripcionVencidaPage onLogout={signOut} />;
+
+  // Permitir que el superadmin entre a su panel saltándose el onboarding
+  if (location.pathname === '/superadmin') {
+    return (
+      <Routes>
+        <Route path="/superadmin" element={<SuperAdminDashboard />} />
+      </Routes>
+    );
+  }
 
   // Siempre asumir que estamos en PH, ya que la aplicación se separó.
   // Si no hay unidades configuradas, mandar al onboarding de PH.
