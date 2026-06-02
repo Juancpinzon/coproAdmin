@@ -23,6 +23,7 @@ import PortalResidentePage from "./pages/ph/PortalResidentePage";
 import PresupuestoPage from "./pages/ph/PresupuestoPage";
 import AyudaPage from "./pages/ph/AyudaPage";
 import SuscripcionVencidaPage from "./pages/SuscripcionVencidaPage";
+import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -89,6 +90,12 @@ function AppContent() {
       <AppLayout onLogout={signOut}>
         <Routes>
           <Route path="/" element={<DashboardPHPage />} />
+          <Route path="/ph/unidades" element={<AppLayout onLogout={signOut}><UnidadesPage /></AppLayout>} />
+
+          {/* Panel de Dueño del Software */}
+          <Route path="/superadmin" element={<SuperAdminDashboard />} />
+
+          {/* Catch-all */}
           <Route path="/unidades" element={<UnidadesPage />} />
           <Route path="/cobros" element={<CobrosPage />} />
           <Route path="/zonas" element={<ZonasPage />} />
