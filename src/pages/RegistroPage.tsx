@@ -11,8 +11,7 @@ import { supabase } from "@/lib/supabase";
 type TenantType = "propiedad_horizontal" | "fondo_familiar";
 
 const RegistroPage = () => {
-  const [step, setStep] = useState<1 | 2>(1);
-  const [tenantType, setTenantType] = useState<TenantType>("propiedad_horizontal");
+  const tenantType: TenantType = "propiedad_horizontal";
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -105,55 +104,12 @@ const RegistroPage = () => {
           </div>
           <CardTitle className="text-2xl font-bold">Crear tu cuenta</CardTitle>
           <CardDescription>
-            {step === 1 ? "Selecciona el tipo de cuenta que necesitas" : "Completa tus datos de acceso"}
+            Completa tus datos de acceso
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {step === 1 ? (
-            <div className="space-y-6">
-              <div className="grid gap-4">
-                <div
-                  className={`relative flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-all ${
-                    tenantType === "propiedad_horizontal"
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-slate-200 hover:border-slate-300"
-                  }`}
-                  onClick={() => setTenantType("propiedad_horizontal")}
-                >
-                  <div className={`p-3 rounded-lg ${tenantType === "propiedad_horizontal" ? "bg-primary text-primary-foreground" : "bg-slate-100 text-slate-600"}`}>
-                    <Building2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Propiedad Horizontal</h3>
-                    <p className="text-sm text-slate-500">Conjuntos y edificios</p>
-                  </div>
-                </div>
-
-                <div
-                  className={`relative flex items-center gap-4 p-4 border rounded-xl cursor-pointer transition-all ${
-                    tenantType === "fondo_familiar"
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-slate-200 hover:border-slate-300"
-                  }`}
-                  onClick={() => setTenantType("fondo_familiar")}
-                >
-                  <div className={`p-3 rounded-lg ${tenantType === "fondo_familiar" ? "bg-primary text-primary-foreground" : "bg-slate-100 text-slate-600"}`}>
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Fondo Familiar</h3>
-                    <p className="text-sm text-slate-500">Grupos de ahorro</p>
-                  </div>
-                </div>
-              </div>
-
-              <Button className="w-full" size="lg" onClick={() => setStep(2)}>
-                Continuar
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre completo</Label>
                 <Input
@@ -212,15 +168,11 @@ const RegistroPage = () => {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" size="lg" className="px-4" onClick={() => setStep(1)} disabled={loading}>
-                  Atrás
-                </Button>
-                <Button type="submit" className="flex-1" size="lg" disabled={loading}>
+                <Button type="submit" className="w-full" size="lg" disabled={loading}>
                   {loading ? "Creando..." : "Crear cuenta"}
                 </Button>
               </div>
             </form>
-          )}
 
           <div className="mt-6 text-center text-sm">
             <span className="text-slate-500">¿Ya tienes cuenta? </span>
