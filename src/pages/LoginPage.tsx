@@ -85,7 +85,7 @@ const LoginPage = () => {
           </div>
           <CardTitle className="text-2xl font-bold text-primary">CoproAdmin</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Gestión de fondos familiares de ahorro
+            Gestión de Propiedad Horizontal
           </CardDescription>
         </CardHeader>
 
