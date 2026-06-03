@@ -171,6 +171,11 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 | `supabase/migrations/003_features.sql` | Contiene stored procedures de amortización y aprobación de préstamos (fondos) | No borrar — afectaría el historial de BD. Ignorar al leer migraciones. |
 | `src/hooks/useInvitarMiembro.ts` | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor. |
 
+Nuevos ítems pendientes:
+- Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
+- Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
+- Fase 6: seed_obligaciones_iniciales — no lanza excepción si falla; admin puede reintentar desde /cumplimiento
+
 ---
 
 ## 🗺️ Rutas de la Aplicación (App.tsx)
@@ -679,7 +684,7 @@ const obligacionesIniciales = [
 
 ## 🗓️ Orden de Construcción
 
-### Fase 1 — Landing + Identidad
+### Fase 1 — Landing + Identidad ✅ COMPLETA
 
 - [x] Reemplazar "FondoApp" → "CoproAdmin" en todos los archivos
 - [x] Fix doble scrollbar (`overflow-x-hidden` en div raíz de LandingPage)
@@ -687,11 +692,12 @@ const obligacionesIniciales = [
 - [x] Pricing: Básico (≤50) / Pro (51–200) / Enterprise (+200 → Consultar)
 - [x] Footer legal apuntando a rutas reales: /politica-privacidad, /terminos-de-uso, /politica-cookies
 - [x] Crear shells de las 3 páginas legales (en `src/pages/`, contenido en Fase 6)
-- [ ] Copy hero, statsbar, features y how-it-works revisado y coherente con CoproAdmin
-- [ ] Sección "¿Para quién es CoproAdmin?" entre Features y HowItWorks
-- [ ] **Criterio de éxito:** landing sin rastro de FondoApp, sin testimonios falsos, links legales funcionales, número de WhatsApp real
+- [x] Copy hero, statsbar, features y how-it-works revisado y coherente con CoproAdmin
+- [x] Sección "¿Para quién es CoproAdmin?" entre Features y HowItWorks
+- [x] **Criterio de éxito:** landing sin rastro de FondoApp, sin testimonios falsos, links legales funcionales, número de WhatsApp real
+      *Nota: Cerrada. Grep de verificación: 0 residuos de FondoApp.*
 
-### Fase 2 — Wizard de Onboarding ✅ COMPLETA
+### Fase 2 — Wizard de Onboarding ⏳ 95%
 
 - [x] Wizard 5 pasos completo (StepConjunto, StepCuota, StepUnidades, StepZonas, StepResumen)
 - [x] Validación NIT con cálculo de dígito verificador DIAN en StepConjunto
@@ -700,10 +706,10 @@ const obligacionesIniciales = [
 - [x] Seed automático de zonas y miembros al finalizar
 - [x] Borrador en localStorage con recuperación automática
 - [x] Pantalla de éxito post-creación
-- [~] Rollback transaccional completo — no verificado; la lógica de inserción es secuencial, no usa una transacción atómica explícita
+- [ ] Rollback transaccional completo — pendiente: inserciones secuenciales sin transacción atómica
 - [x] **Criterio de éxito:** desde cero hasta dashboard en menos de 20 minutos
 
-### Fase 3 — Módulo de Cobros ✅ COMPLETA
+### Fase 3 — Módulo de Cobros ⏳ 90%
 
 - [x] Listado de cuotas con estado de mora calculado en runtime
 - [x] Generación masiva con previsualización obligatoria (muestra total y conteo antes de confirmar)
@@ -711,7 +717,7 @@ const obligacionesIniciales = [
 - [x] Registro manual de pago con fecha y URL de comprobante
 - [x] Pago registrado atómicamente: crea pago + actualiza cuota + agrega movimiento de fondo
 - [x] Exportación a Excel, PDF y CSV
-- [~] Edge Function `generar-cuotas` — la lógica está en `useCuotasAdmin` (frontend), no en Edge Function. Funciona pero sin la garantía idempotente del servidor
+- [ ] Edge Function `generar-cuotas` — pendiente de mover a Edge Function (idempotencia)
 - [x] **Criterio de éxito:** generar cuotas, registrar pago, ver movimiento en fondo del conjunto
 
 ### Fase 4 — Zonas Comunes y Reservas ✅ COMPLETA
@@ -738,17 +744,23 @@ const obligacionesIniciales = [
 
 ### Fase 6 — Módulo de Cumplimiento Legal _(en curso)_
 
-- [x] Schema: `consentimientos_tratamiento`, `solicitudes_arco`, `obligaciones_legales` — migración 007 aplicada en producción
-- [x] Hook `useObligaciones.ts` — fetch + estado calculado en runtime (al_dia/proximo/vencido), `useResumenCumplimiento` para dashboard
-- [x] Hook `useConsentimientos.ts` — consentimientos inmutables, flujo ARCO completo (crear, listar, actualizar estado)
-- [x] Seed automático de 4 obligaciones iniciales al completar onboarding (`seed_obligaciones_iniciales` via RPC)
-- [x] Página `CumplimientoPage.tsx` — Capítulo 1 (cards consentimientos) + Capítulo 2 (checklist Ley 675 con semáforo)
-- [x] Semáforo de cumplimiento en `DashboardPHPage.tsx` (ComplianceSemaforo con useObligaciones)
-- [x] ShieldCheck "Cumplimiento" añadido al sidebar de admin_ph en AppLayout.tsx
-- [x] Banner de consentimiento en portal residente (usar `useConsentimientoVigente`)
-- [x] Sección ARCO en `PortalResidentePage.tsx` (residente crea solicitud, ve historial)
-- [x] Contenido legal real en /politica-privacidad, /terminos-de-uso, /politica-cookies (v1.0 — Ley 1581/2012, Ley 675/2001)
-- [ ] **Criterio de éxito:** admin ve semáforo con al menos 4 obligaciones rastreadas
+- [x] Schema BD: tablas consentimientos_tratamiento, solicitudes_arco, obligaciones_legales + RLS + función seed_obligaciones_iniciales
+- [x] useObligaciones.ts — estado calculado en runtime, nunca en BD
+- [x] useConsentimientos.ts — registro y solicitudes ARCO
+- [x] Seed wired al onboarding (OnboardingPHPage.tsx → handleFinish)
+- [x] Banner consentimiento en PortalResidentePage (versión v1.0)
+- [x] Sección ARCO en PortalResidentePage — 4 tipos, modal, toast "10 días hábiles"
+- [x] CumplimientoPage.tsx — /cumplimiento activa, sidebar actualizado
+      Subcarpeta: src/pages/ph/cumplimiento/ObligacionCard.tsx
+      Capítulo 1: cards "Próximamente"
+      Capítulo 2: 6 obligaciones Ley 675 funcionales — fechas editables, subida de documentos a Storage, notas con debounce 800ms, estado calculado en runtime
+- [x] Semáforo ComplianceSemaforo en DashboardPHPage — ordenado por urgencia, insertado después de KPIs
+- [x] Contenido legal real:
+      PoliticaPrivacidadPage — Ley 1581/2012 + ARCO + v1.0
+      TerminosDeUsoPage — CoproAdmin como herramienta, no administrador
+      PoliticaCookiesPage — cookies reales Supabase Auth, sin terceros
+- [ ] Capítulo 1 funcional — panel consentimientos por miembro (admin_ph)
+- [x] **Criterio de éxito:** ✅ admin ve semáforo con 4+ obligaciones rastreadas
 
 ### Fase 7 — Wompi _(no iniciado)_
 
