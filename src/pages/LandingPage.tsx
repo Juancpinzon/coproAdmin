@@ -14,17 +14,21 @@ import {
   Receipt,
   Calendar,
   MessageSquare,
-  Wallet,
-  PiggyBank,
   BarChart3,
+  PiggyBank,
+  ShieldCheck,
   CheckCircle2,
   ArrowDown,
   Star,
+  Briefcase,
+  Users,
+  Home,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
+// TODO: reemplazar con número real antes de deploy
 const WA_DEMO_HREF =
   'https://wa.me/573000000000?text=Hola%2C%20quiero%20conocer%20CoproAdmin%20para%20mi%20conjunto'
 
@@ -129,7 +133,7 @@ const HeroSection = () => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', bounce: 0.5, delay: 0.1 }}
         >
-          Hecho para la nube
+          Diseñado para conjuntos colombianos · Ley 675
         </motion.div>
 
         <motion.h1
@@ -168,8 +172,8 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
         >
-          La plataforma definitiva para la gestión financiera y administrativa de copropiedades.
-          Ahorra tiempo, evita errores y mantén a todos informados.
+          Cobros automáticos, portal para residentes, PQR digital y cumplimiento de la Ley 675
+          de 2001. Todo en una plataforma, sin Excel ni WhatsApp.
         </motion.p>
 
         <motion.div
@@ -221,7 +225,7 @@ const HeroSection = () => {
 
 // ─── StatsBar ─────────────────────────────────────────────────────────────────
 
-const statItems = ['Fácil configuración', 'Soporte en español', 'Datos seguros']
+const statItems = ['Ley 675 de 2001 cubierta', 'Cobros y mora en tiempo real', 'Portal web para residentes']
 
 const StatsBar = () => (
   <section className="bg-blue-600 py-10 px-4">
@@ -272,16 +276,16 @@ const features: Feature[] = [
     desc: 'Registra y visualiza los pagos de administración de cada unidad con total transparencia.',
   },
   {
-    Icon: Wallet,
+    Icon: BarChart3,
     color: 'bg-amber-100 text-amber-600',
-    title: 'Gestión de Zonas',
-    desc: 'Permite a los residentes reservar zonas comunes online. Bloqueo automático para morosos.',
+    title: 'Presupuesto anual',
+    desc: 'Planifica los gastos del año por categoría y controla la ejecución presupuestal mes a mes.',
   },
   {
-    Icon: BarChart3,
+    Icon: ShieldCheck,
     color: 'bg-teal-100 text-teal-600',
-    title: 'Reportes y PQRs',
-    desc: 'Genera reportes claros y administra las solicitudes (PQR) de tu copropiedad en segundos.',
+    title: 'Ley 675 integrada',
+    desc: 'Controla asambleas, reglamento, seguros y rendición de cuentas desde un solo panel.',
   },
 ]
 
@@ -310,7 +314,7 @@ const FeaturesSection = () => {
             Todo lo que necesitas en un solo lugar
           </h2>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Soluciones adaptadas para Propiedad Horizontal y Fondos Familiares.
+            Soluciones para conjuntos residenciales colombianos.
           </p>
         </motion.div>
 
@@ -337,6 +341,86 @@ const FeaturesSection = () => {
             </motion.div>
           ))}
         </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// ─── ForWhomSection ───────────────────────────────────────────────────────────
+
+const profiles = [
+  {
+    Icon: Briefcase,
+    color: 'bg-blue-100 text-blue-600',
+    title: 'Administrador profesional',
+    lines: [
+      'Gestiona varios conjuntos desde una sola plataforma.',
+      'Estado de mora, cobros y PQR sin perder el hilo.',
+    ],
+  },
+  {
+    Icon: Users,
+    color: 'bg-purple-100 text-purple-600',
+    title: 'Junta directiva',
+    lines: [
+      'Visibilidad completa sobre recaudos, presupuesto y cumplimiento legal.',
+      'Sin esperar reportes en Excel que llegan tarde.',
+    ],
+  },
+  {
+    Icon: Home,
+    color: 'bg-green-100 text-green-600',
+    title: 'Conjunto sin administrador externo',
+    lines: [
+      'Administra tu conjunto tú mismo en menos de 20 minutos.',
+      'Wizard de configuración guiado, sin conocimientos contables.',
+    ],
+  },
+]
+
+const ForWhomSection = () => {
+  const ref = useRef<HTMLElement>(null)
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
+
+  return (
+    <section ref={ref} className="py-24 bg-slate-50 px-4">
+      <div className="container mx-auto max-w-5xl">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            ¿Para quién es CoproAdmin?
+          </h2>
+          <p className="text-slate-500 text-lg">Para quien administra. Para quien supervisa. Para quien vive ahí.</p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {profiles.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: i * 0.15 }}
+              className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100"
+            >
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${p.color}`}>
+                <p.Icon className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-lg mb-3">{p.title}</h3>
+              <ul className="space-y-2">
+                {p.lines.map((line) => (
+                  <li key={line} className="flex items-start gap-2 text-sm text-slate-500">
+                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -715,6 +799,7 @@ const LandingPage = () => (
     <HeroSection />
     <StatsBar />
     <FeaturesSection />
+    <ForWhomSection />
     <HowItWorksSection />
     <PricingSection />
     <TestimonialsSection />

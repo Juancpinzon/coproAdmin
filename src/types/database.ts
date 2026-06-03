@@ -1,5 +1,4 @@
-// Tipos que reflejan exactamente las columnas de la base de datos
-// Generados manualmente para FondoApp v1
+// Generado con Supabase CLI — CoproAdmin
 export type TenantType =
   | "fondo_familiar"
   | "propiedad_horizontal"
@@ -41,9 +40,8 @@ export interface Miembro {
   cedula: string | null;
   email: string | null;
   telefono: string | null;
-  rol:"admin" | "tesorero" | "comite" | "miembro" | "admin_ph" | "propietario" | "residente";
+  rol: "admin_ph" | "propietario" | "residente" | "admin" | "tesorero" | "comite" | "miembro";
   estado: "activo" | "inactivo" | "suspendido";
-  aporte_inicial: number;
   created_at: string;
 }
 

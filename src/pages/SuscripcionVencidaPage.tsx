@@ -6,6 +6,7 @@ interface SuscripcionVencidaPageProps {
   onLogout: () => void;
 }
 
+// TODO: reemplazar con número real antes de deploy
 const WA_HREF =
   "https://wa.me/573000000000?text=Hola%2C%20quiero%20activar%20mi%20suscripci%C3%B3n%20a%20CoproAdmin";
 

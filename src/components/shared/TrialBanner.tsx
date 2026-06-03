@@ -45,7 +45,8 @@ export function TrialBanner() {
           <DialogHeader>
             <DialogTitle>Activar Plan</DialogTitle>
             <DialogDescription>
-              Para activar tu plan, escríbenos por WhatsApp al <strong>3001234567</strong> o envía tu comprobante de pago a <strong>admin@fondoapp.co</strong>
+              {/* TODO: reemplazar con número real antes de deploy */}
+              Para activar tu plan, escríbenos por WhatsApp al <strong>3000000000</strong> o envía tu comprobante de pago a <strong>admin@coproadmin.co</strong>
               <br/><br/>
               Planes:
               <br/>- PH Básico $89.000/mes
