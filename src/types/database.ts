@@ -232,3 +232,66 @@ export interface PrestamoConMiembro extends Prestamo {
 export interface MovimientoConMiembro extends MovimientoFondo {
   miembro: Pick<Miembro, "nombre_completo"> | null;
 }
+
+// ─── Fase 6: Módulo de Cumplimiento Legal ──────────────────────
+
+/**
+ * Registro de consentimiento de tratamiento de datos personales.
+ * Ley 1581/2012 + Decreto 1377/2013.
+ * INMUTABLE: una vez insertado no se modifica. Nuevas aceptaciones
+ * generan una fila nueva con la nueva versión de la política.
+ */
+export interface ConsentimientoTratamiento {
+  id: string;
+  tenant_id: string;
+  miembro_id: string;
+  version_politica: string;            // ej: "v1.0"
+  acepto: boolean;
+  fecha: string;                       // timestamp — inmutable
+  ip_registro: string | null;
+  canal: "web" | "portal" | "presencial";
+}
+
+/**
+ * Solicitud ARCO: Acceso, Rectificación, Cancelación, Oposición.
+ * Ley 1581/2012, Art. 22 — plazo de respuesta: 10 días hábiles.
+ * fecha_limite se calcula en BD como NOW() + 14 días (≈ 10 hábiles).
+ */
+export interface SolicitudARCO {
+  id: string;
+  tenant_id: string;
+  miembro_id: string;
+  tipo: "acceso" | "rectificacion" | "cancelacion" | "oposicion";
+  descripcion: string;
+  estado: "recibida" | "en_tramite" | "resuelta";
+  respuesta: string | null;
+  fecha_limite: string;                // timestamp — 14 días desde created_at
+  fecha_resolucion: string | null;
+  created_at: string;
+}
+
+/**
+ * Obligación legal periódica del administrador.
+ * Ley 675 de 2001.
+ *
+ * IMPORTANTE: el campo "estado" ("al_dia" | "proximo" | "vencido")
+ * NO existe en esta interfaz porque NUNCA se guarda en la BD.
+ * Se calcula en runtime en useObligaciones.ts comparando
+ * fecha_vencimiento con la fecha actual.
+ */
+export interface ObligacionLegal {
+  id: string;
+  tenant_id: string;
+  tipo:
+    | "asamblea_ordinaria"
+    | "rendicion_cuentas"
+    | "presupuesto"
+    | "seguros"
+    | "estados_financieros"
+    | "reglamento";
+  fecha_vencimiento: string | null;    // null = obligación permanente (ej: reglamento)
+  documento_url: string | null;
+  notas: string | null;
+  updated_at: string;
+  // estado: calculado en runtime — ver useObligaciones.calcularEstado()
+}

@@ -8,7 +8,7 @@ interface SuscripcionVencidaPageProps {
 
 // TODO: reemplazar con número real antes de deploy
 const WA_HREF =
-  "https://wa.me/573000000000?text=Hola%2C%20quiero%20activar%20mi%20suscripci%C3%B3n%20a%20CoproAdmin";
+  "https://wa.me/573158966130?text=Hola%2C%20quiero%20activar%20mi%20suscripci%C3%B3n%20a%20CoproAdmin";
 
 const SuscripcionVencidaPage = ({ onLogout }: SuscripcionVencidaPageProps) => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
@@ -27,7 +27,8 @@ const SuscripcionVencidaPage = ({ onLogout }: SuscripcionVencidaPageProps) => (
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-3xl font-bold">
-            $89.000<span className="text-sm font-normal text-slate-500">/mes</span>
+            $89.000
+            <span className="text-sm font-normal text-slate-500">/mes</span>
           </p>
           <p className="text-sm text-slate-500 mt-1">Hasta 50 unidades</p>
         </CardContent>
@@ -38,7 +39,8 @@ const SuscripcionVencidaPage = ({ onLogout }: SuscripcionVencidaPageProps) => (
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-3xl font-bold">
-            $149.000<span className="text-sm font-normal text-slate-500">/mes</span>
+            $149.000
+            <span className="text-sm font-normal text-slate-500">/mes</span>
           </p>
           <p className="text-sm text-slate-500 mt-1">51 a 200 unidades</p>
         </CardContent>
