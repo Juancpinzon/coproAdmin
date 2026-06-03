@@ -10,15 +10,13 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { useInvitarMiembro } from '@/hooks/useInvitarMiembro'
-import { formatCOP } from '@/lib/mockData'
 
-type RolMiembro = 'miembro' | 'comite' | 'tesorero' | 'admin'
+type RolPH = 'propietario' | 'residente' | 'admin_ph'
 
-const ROL_LABELS: Record<RolMiembro, string> = {
-  miembro:  'Miembro',
-  comite:   'Comité',
-  tesorero: 'Tesorero',
-  admin:    'Administrador',
+const ROL_LABELS: Record<RolPH, string> = {
+  propietario: 'Propietario',
+  residente:   'Residente',
+  admin_ph:    'Administrador',
 }
 
 interface Props {
@@ -30,11 +28,10 @@ interface Form {
   nombre_completo: string
   email:           string
   telefono:        string
-  rol:             RolMiembro
-  aporte_inicial:  string
+  rol:             RolPH
 }
 
-const EMPTY: Form = { nombre_completo: '', email: '', telefono: '', rol: 'miembro', aporte_inicial: '' }
+const EMPTY: Form = { nombre_completo: '', email: '', telefono: '', rol: 'propietario' }
 
 const InvitarMiembroModal = ({ open, onClose }: Props) => {
   const [form, setForm]       = useState<Form>(EMPTY)
@@ -45,8 +42,6 @@ const InvitarMiembroModal = ({ open, onClose }: Props) => {
   const set = (field: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
-  const aporte = parseInt(form.aporte_inicial.replace(/\D/g, '') || '0', 10)
-
   const handleConfirm = async () => {
     try {
       await mutateAsync({
@@ -54,7 +49,6 @@ const InvitarMiembroModal = ({ open, onClose }: Props) => {
         email:           form.email,
         telefono:        form.telefono,
         rol:             form.rol,
-        aporte_inicial:  aporte,
       })
       toast({
         title:       'Miembro registrado',
@@ -90,7 +84,7 @@ const InvitarMiembroModal = ({ open, onClose }: Props) => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invitar miembro</DialogTitle>
+          <DialogTitle>Invitar propietario o residente</DialogTitle>
         </DialogHeader>
 
         {!confirm ? (
@@ -133,44 +127,24 @@ const InvitarMiembroModal = ({ open, onClose }: Props) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rol">Rol en el fondo</Label>
+              <Label htmlFor="rol">Rol en el conjunto</Label>
               <Select
                 value={form.rol}
                 onValueChange={(v) =>
-                  setForm((prev) => ({ ...prev, rol: v as RolMiembro }))
+                  setForm((prev) => ({ ...prev, rol: v as RolPH }))
                 }
               >
                 <SelectTrigger id="rol" className="h-12">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(Object.entries(ROL_LABELS) as [RolMiembro, string][]).map(([value, label]) => (
+                  {(Object.entries(ROL_LABELS) as [RolPH, string][]).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="aporte">Aporte inicial COP</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <Input
-                  id="aporte"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={aporte > 0 ? new Intl.NumberFormat('es-CO').format(aporte) : ''}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      aporte_inicial: e.target.value.replace(/\D/g, ''),
-                    }))
-                  }
-                  className="h-12 pl-7"
-                />
-              </div>
             </div>
 
             <DialogFooter className="pt-2">
@@ -192,13 +166,10 @@ const InvitarMiembroModal = ({ open, onClose }: Props) => {
                 <span className="text-muted-foreground">Rol:</span>{' '}
                 <strong>{ROL_LABELS[form.rol]}</strong>
               </p>
-              <p>
-                <span className="text-muted-foreground">Aporte inicial:</span>{' '}
-                <strong className="font-mono">{formatCOP(aporte)}</strong>
-              </p>
             </div>
             <p className="text-sm text-muted-foreground">
-              Se creará el miembro. Para acceder al fondo, <strong>{form.email}</strong> debe crear su cuenta en la pantalla de inicio con ese mismo correo.
+              Se creará el miembro. Para acceder al conjunto,{' '}
+              <strong>{form.email}</strong> debe crear su cuenta en la pantalla de inicio con ese mismo correo.
             </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setConfirm(false)} disabled={isPending}>

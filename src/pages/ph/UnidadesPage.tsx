@@ -5,7 +5,7 @@ import {
   useCreateUnidad,
   useUpdateUnidad,
 } from "@/hooks/useUnidades";
-import { useMiembros } from "@/hooks/useMiembros";
+import { useMiembrosPH } from "@/hooks/useMiembrosPH";
 import { useTenant } from "@/hooks/useTenant";
 import { useCuotasAdmin, type CuotaAdmin } from "@/hooks/useCuotasAdmin";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ const EMPTY_FORM: FormState = {
 
 export default function UnidadesPage() {
   const { data: unidades = [], isLoading } = useUnidades();
-  const { data: miembros = [] } = useMiembros();
+  const { data: miembros = [] } = useMiembrosPH();
   const { data: tenant } = useTenant();
   const { data: todasCuotas = [] } = useCuotasAdmin();
   const createUnidad = useCreateUnidad();

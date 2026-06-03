@@ -3,15 +3,11 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  ArrowLeftRight,
   Users,
-  CreditCard,
-  Settings,
   Menu,
   X,
   LogOut,
   User,
-  TrendingUp,
   BarChart3,
   Building2,
   DollarSign,
@@ -32,30 +28,6 @@ interface NavItem {
   label: string;
 }
 
-// --- Fondo familiar ---
-const adminNavItems: NavItem[] = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/transacciones", icon: ArrowLeftRight, label: "Transacciones" },
-  { to: "/miembros", icon: Users, label: "Miembros" },
-  { to: "/prestamos", icon: CreditCard, label: "Préstamos" },
-  { to: "/reportes", icon: BarChart3, label: "Reportes" },
-  { to: "/admin", icon: Settings, label: "Configuración" },
-];
-
-const comiteNavItems: NavItem[] = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/transacciones", icon: ArrowLeftRight, label: "Transacciones" },
-  { to: "/miembros", icon: Users, label: "Miembros" },
-  { to: "/prestamos", icon: CreditCard, label: "Préstamos" },
-  { to: "/reportes", icon: BarChart3, label: "Reportes" },
-];
-
-const miembroNavItems: NavItem[] = [
-  { to: "/mi-cuenta", icon: User, label: "Mi Cuenta" },
-  { to: "/estado-fondo", icon: TrendingUp, label: "Estado del Fondo" },
-];
-
-// --- Propiedad horizontal ---
 const phAdminNavItems: NavItem[] = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/unidades", icon: Building2, label: "Unidades" },
@@ -86,18 +58,8 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
   const { miembro } = useMiembroContext();
   const { data: tenant } = useTenant();
 
-  const isPH = tenant?.tenant_type === "propiedad_horizontal";
-  const appName = isPH ? (tenant?.nombre ?? "CoproAdmin") : "CoproAdmin";
-
-  const navItems: NavItem[] = isPH
-    ? miembro.rol === "admin_ph"
-      ? phAdminNavItems
-      : phPropietarioNavItems
-    : miembro.rol === "admin" || miembro.rol === "tesorero"
-      ? adminNavItems
-      : miembro.rol === "comite"
-        ? comiteNavItems
-        : miembroNavItems;
+  const appName = tenant?.nombre ?? "CoproAdmin";
+  const navItems: NavItem[] = miembro.rol === "admin_ph" ? phAdminNavItems : phPropietarioNavItems;
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,7 +87,7 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === "/" || item.to === "/mi-cuenta"}
+                end={item.to === "/"}
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
                   cn(
@@ -163,7 +125,7 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === "/" || item.to === "/mi-cuenta"}
+                end={item.to === "/"}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-3 px-3 py-3 rounded-lg text-sm transition-colors",
@@ -203,4 +165,3 @@ const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
 };
 
 export default AppLayout;
-
