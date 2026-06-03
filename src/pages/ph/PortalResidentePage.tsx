@@ -39,6 +39,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { formatCOP } from "@/lib/utils";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   AlertTriangle,
   Plus,
   ShieldCheck,
@@ -46,11 +52,90 @@ import {
   ChevronUp,
   FileText,
   Loader2,
+  CreditCard,
 } from "lucide-react";
 
 // ─── Versión de política vigente ────────────────────────────────
 // Actualizar aquí cuando se publique una nueva política de privacidad.
 const VERSION_POLITICA = "v1.0";
+
+const WOMPI_HABILITADO = Boolean(import.meta.env.VITE_WOMPI_PUBLIC_KEY);
+
+// ─── Modal de pago Wompi ─────────────────────────────────────────
+
+interface CuotaResumen {
+  id: string;
+  periodo: string;
+  monto: number;
+  unidadNumero: string;
+}
+
+interface ModalPagoWompiProps {
+  cuota: CuotaResumen;
+  onClose: () => void;
+}
+
+function ModalPagoWompi({ cuota, onClose }: ModalPagoWompiProps) {
+  const periodoFormateado = format(
+    new Date(cuota.periodo + "T12:00:00"),
+    "MMMM yyyy",
+  );
+
+  const botonPagar = (
+    <Button
+      id={`btn-ir-a-pagar-${cuota.id}`}
+      className="w-full h-11 text-base"
+      disabled={!WOMPI_HABILITADO}
+      onClick={() => {
+        // TODO: Inicializar widget Wompi con VITE_WOMPI_PUBLIC_KEY
+        // referencia: cuota.id — se envía como reference al webhook
+        // monto: cuota.monto * 100 (Wompi usa centavos)
+      }}
+    >
+      <CreditCard className="w-4 h-4 mr-2" />
+      Ir a pagar
+    </Button>
+  );
+
+  return (
+    <div className="space-y-5 py-2">
+      {/* Resumen de la cuota */}
+      <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Unidad</span>
+          <span className="font-medium">{cuota.unidadNumero}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Período</span>
+          <span className="font-medium capitalize">{periodoFormateado}</span>
+        </div>
+        <div className="flex justify-between items-center border-t pt-3">
+          <span className="text-muted-foreground text-sm">Total a pagar</span>
+          <span className="text-xl font-mono font-bold">{formatCOP(cuota.monto)}</span>
+        </div>
+      </div>
+
+      {WOMPI_HABILITADO ? (
+        botonPagar
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="block">{botonPagar}</span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              Próximamente — el pago online está en configuración
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
+      <Button variant="outline" className="w-full" onClick={onClose}>
+        Cerrar
+      </Button>
+    </div>
+  );
+}
 
 // ─── Banner de consentimiento ────────────────────────────────────
 
@@ -369,6 +454,13 @@ export default function PortalResidentePage() {
     }
   };
 
+  // ── Modal pago Wompi ─────────────────────────────────────────
+  const [cuotaParaPagar, setCuotaParaPagar] = useState<CuotaResumen | null>(null);
+
+  const cuotasPendientes = misCuotas.filter(
+    (c) => c.estado === "pendiente" || c.estado === "vencido",
+  );
+
   // ── Reservas ──────────────────────────────────────────────────
   const [newReserva, setNewReserva] = useState({
     zona_id: "",
@@ -466,13 +558,31 @@ export default function PortalResidentePage() {
         />
       )}
 
+      {/* Modal pago Wompi */}
+      <Dialog
+        open={cuotaParaPagar !== null}
+        onOpenChange={(open) => { if (!open) setCuotaParaPagar(null); }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Pagar cuota</DialogTitle>
+          </DialogHeader>
+          {cuotaParaPagar && (
+            <ModalPagoWompi
+              cuota={cuotaParaPagar}
+              onClose={() => setCuotaParaPagar(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Estado de cuenta */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Estado de cuenta</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex justify-between items-center mb-4">
+        <CardContent className="space-y-4">
+          <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Estado actual</span>
             {tieneMora ? (
               <Badge variant="destructive" className="text-sm">
@@ -484,12 +594,63 @@ export default function PortalResidentePage() {
               </Badge>
             )}
           </div>
-          <div className="flex justify-between items-center pt-4 border-t">
+          <div className="flex justify-between items-center pt-3 border-t">
             <span className="text-muted-foreground">Cuota del mes</span>
             <span className="text-xl font-mono font-bold">
               {cuotaMes ? formatCOP(cuotaMes.monto) : "---"}
             </span>
           </div>
+
+          {/* Cuotas pendientes */}
+          {cuotasPendientes.length > 0 && (
+            <div className="space-y-2 pt-2 border-t">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Cuotas por pagar ({cuotasPendientes.length})
+              </p>
+              {cuotasPendientes.map((cuota) => {
+                const periodoLabel = format(
+                  new Date(cuota.periodo + "T12:00:00"),
+                  "MMMM yyyy",
+                );
+                return (
+                  <div
+                    key={cuota.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium capitalize">{periodoLabel}</p>
+                      <p className="text-xs text-muted-foreground font-mono">
+                        {formatCOP(cuota.monto)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {cuota.estado === "vencido" && (
+                        <Badge variant="destructive" className="text-xs">
+                          Vencido
+                        </Badge>
+                      )}
+                      <Button
+                        id={`btn-pagar-cuota-${cuota.id}`}
+                        size="sm"
+                        variant={WOMPI_HABILITADO ? "default" : "outline"}
+                        onClick={() =>
+                          setCuotaParaPagar({
+                            id: cuota.id,
+                            periodo: cuota.periodo,
+                            monto: cuota.monto,
+                            unidadNumero: unidadSeleccionada.numero,
+                          })
+                        }
+                      >
+                        <CreditCard className="w-3.5 h-3.5 mr-1.5" />
+                        Pagar en línea
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
