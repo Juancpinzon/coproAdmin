@@ -259,7 +259,6 @@ export default function OnboardingPHPage() {
       setFinished(true);
       toast.success("Conjunto configurado exitosamente");
     } catch (error: any) {
-      console.error(error);
       toast.error(error.message || "Error al crear el conjunto");
     } finally {
       setIsSaving(false);

@@ -41,7 +41,7 @@ export function useSuperAdmin() {
         await fetchTenants();
       }
     } catch (error) {
-      console.error("Error verificando super admin:", error);
+      // Error silencioso en UI, el usuario no es superadmin
       setIsSuperAdmin(false);
     } finally {
       setLoading(false);
@@ -58,7 +58,8 @@ export function useSuperAdmin() {
       if (error) throw error;
       setTenants(data || []);
     } catch (error) {
-      console.error("Error fetching tenants:", error);
+      // Fallo en fetching
+      setTenants([]);
     }
   };
 
@@ -78,7 +79,7 @@ export function useSuperAdmin() {
       
       return { success: true };
     } catch (error: any) {
-      console.error("Error updating tenant:", error);
+      // El error se retorna al llamador para mostrar toast
       return { success: false, error: error.message };
     }
   };

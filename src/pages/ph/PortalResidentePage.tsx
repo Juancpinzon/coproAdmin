@@ -3,11 +3,10 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { useTenant } from "@/hooks/useTenant";
 import { useMiembroContext } from "@/contexts/MiembroContext";
-import { useAuth } from "@/hooks/useAuth";
 import { useUnidades } from "@/hooks/useUnidades";
 import { useCuotasAdmin } from "@/hooks/useCuotasAdmin";
 import { useZonasComunes } from "@/hooks/useZonasComunes";
-import { useReservasByUnidad, useCreateReserva } from "@/hooks/useReservas";
+import { useCreateReserva } from "@/hooks/useReservas";
 import { usePQR, useCreatePQR } from "@/hooks/usePQR";
 import {
   useConsentimientoVigente,
@@ -61,6 +60,11 @@ const VERSION_POLITICA = "v1.0";
 
 const WOMPI_HABILITADO = Boolean(import.meta.env.VITE_WOMPI_PUBLIC_KEY);
 
+// Clases comunes para DialogContent mobile-first:
+// full-screen en móvil (<640px), centrado en desktop.
+const DIALOG_MOBILE =
+  "max-sm:fixed max-sm:inset-0 max-sm:top-0 max-sm:left-0 max-sm:translate-x-0 max-sm:translate-y-0 max-sm:max-w-full max-sm:w-full max-sm:h-[100dvh] max-sm:rounded-none overflow-y-auto";
+
 // ─── Modal de pago Wompi ─────────────────────────────────────────
 
 interface CuotaResumen {
@@ -84,7 +88,7 @@ function ModalPagoWompi({ cuota, onClose }: ModalPagoWompiProps) {
   const botonPagar = (
     <Button
       id={`btn-ir-a-pagar-${cuota.id}`}
-      className="w-full h-11 text-base"
+      className="w-full h-12 min-h-[48px] text-base"
       disabled={!WOMPI_HABILITADO}
       onClick={() => {
         // TODO: Inicializar widget Wompi con VITE_WOMPI_PUBLIC_KEY
@@ -99,7 +103,6 @@ function ModalPagoWompi({ cuota, onClose }: ModalPagoWompiProps) {
 
   return (
     <div className="space-y-5 py-2">
-      {/* Resumen de la cuota */}
       <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Unidad</span>
@@ -130,7 +133,11 @@ function ModalPagoWompi({ cuota, onClose }: ModalPagoWompiProps) {
         </TooltipProvider>
       )}
 
-      <Button variant="outline" className="w-full" onClick={onClose}>
+      <Button
+        variant="outline"
+        className="w-full h-12 min-h-[48px]"
+        onClick={onClose}
+      >
         Cerrar
       </Button>
     </div>
@@ -162,10 +169,10 @@ function BannerConsentimiento({ onAceptar, isPending }: BannerConsentimientoProp
           </p>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col gap-2">
         <Button
           id="btn-aceptar-consentimiento"
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-11"
+          className="w-full h-12 min-h-[48px] bg-blue-600 hover:bg-blue-700 text-white"
           onClick={onAceptar}
           disabled={isPending}
         >
@@ -176,7 +183,11 @@ function BannerConsentimiento({ onAceptar, isPending }: BannerConsentimientoProp
           )}
           {isPending ? "Registrando…" : "Acepto el tratamiento de mis datos"}
         </Button>
-        <Button variant="outline" size="sm" className="sm:self-center" asChild>
+        <Button
+          variant="outline"
+          className="w-full h-12 min-h-[48px]"
+          asChild
+        >
           <Link to="/politica-privacidad" target="_blank">
             Ver política completa
           </Link>
@@ -225,7 +236,7 @@ function ModalArco({ tipo, onClose }: ModalArcoProps) {
         <Label htmlFor={`arco-desc-${tipo}`}>Descripción</Label>
         <textarea
           id={`arco-desc-${tipo}`}
-          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
           placeholder={`Explica qué datos y por qué solicitas ${ETIQUETAS_ARCO[tipo].toLowerCase()}…`}
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
@@ -234,10 +245,10 @@ function ModalArco({ tipo, onClose }: ModalArcoProps) {
           {descripcion.trim().length} caracteres
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <Button
           id={`btn-enviar-arco-${tipo}`}
-          className="flex-1"
+          className="w-full h-12 min-h-[48px]"
           onClick={handleEnviar}
           disabled={!descripcion.trim() || crearSolicitud.isPending}
         >
@@ -246,7 +257,11 @@ function ModalArco({ tipo, onClose }: ModalArcoProps) {
           ) : null}
           {crearSolicitud.isPending ? "Enviando…" : "Enviar solicitud"}
         </Button>
-        <Button variant="outline" onClick={onClose}>
+        <Button
+          variant="outline"
+          className="w-full h-12 min-h-[48px]"
+          onClick={onClose}
+        >
           Cancelar
         </Button>
       </div>
@@ -275,7 +290,7 @@ function SeccionARCO() {
   return (
     <Card>
       <CardHeader
-        className="flex flex-row items-center justify-between cursor-pointer select-none"
+        className="flex flex-row items-center justify-between cursor-pointer select-none min-h-[64px] py-4"
         onClick={() => setAbierto((v) => !v)}
       >
         <div className="flex items-center gap-2">
@@ -315,7 +330,7 @@ function SeccionARCO() {
                   <Button
                     id={`btn-arco-${tipo}`}
                     variant="outline"
-                    className="h-auto py-3 flex-col gap-1 text-left items-start"
+                    className="h-auto min-h-[48px] py-3 flex-col gap-1 text-left items-start"
                   >
                     <span className="text-lg leading-none">{ICONO_ARCO[tipo]}</span>
                     <span className="text-sm font-medium leading-snug">
@@ -323,7 +338,7 @@ function SeccionARCO() {
                     </span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className={DIALOG_MOBILE}>
                   <DialogHeader>
                     <DialogTitle>
                       {ICONO_ARCO[tipo]} {ETIQUETAS_ARCO[tipo]}
@@ -404,7 +419,6 @@ function SeccionARCO() {
 // ─── Página principal ────────────────────────────────────────────
 
 export default function PortalResidentePage() {
-  const { user } = useAuth();
   const { data: tenant } = useTenant();
   const { miembro } = useMiembroContext();
   const { toast } = useToast();
@@ -563,7 +577,7 @@ export default function PortalResidentePage() {
         open={cuotaParaPagar !== null}
         onOpenChange={(open) => { if (!open) setCuotaParaPagar(null); }}
       >
-        <DialogContent>
+        <DialogContent className={DIALOG_MOBILE}>
           <DialogHeader>
             <DialogTitle>Pagar cuota</DialogTitle>
           </DialogHeader>
@@ -603,7 +617,7 @@ export default function PortalResidentePage() {
 
           {/* Cuotas pendientes */}
           {cuotasPendientes.length > 0 && (
-            <div className="space-y-2 pt-2 border-t">
+            <div className="space-y-3 pt-2 border-t">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 Cuotas por pagar ({cuotasPendientes.length})
               </p>
@@ -615,37 +629,37 @@ export default function PortalResidentePage() {
                 return (
                   <div
                     key={cuota.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                    className="flex flex-col gap-2 rounded-lg border p-3"
                   >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium capitalize">{periodoLabel}</p>
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {formatCOP(cuota.monto)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium capitalize">{periodoLabel}</p>
+                        <p className="text-xs text-muted-foreground font-mono">
+                          {formatCOP(cuota.monto)}
+                        </p>
+                      </div>
                       {cuota.estado === "vencido" && (
-                        <Badge variant="destructive" className="text-xs">
+                        <Badge variant="destructive" className="text-xs shrink-0">
                           Vencido
                         </Badge>
                       )}
-                      <Button
-                        id={`btn-pagar-cuota-${cuota.id}`}
-                        size="sm"
-                        variant={WOMPI_HABILITADO ? "default" : "outline"}
-                        onClick={() =>
-                          setCuotaParaPagar({
-                            id: cuota.id,
-                            periodo: cuota.periodo,
-                            monto: cuota.monto,
-                            unidadNumero: unidadSeleccionada.numero,
-                          })
-                        }
-                      >
-                        <CreditCard className="w-3.5 h-3.5 mr-1.5" />
-                        Pagar en línea
-                      </Button>
                     </div>
+                    <Button
+                      id={`btn-pagar-cuota-${cuota.id}`}
+                      className="w-full h-12 min-h-[48px]"
+                      variant={WOMPI_HABILITADO ? "default" : "outline"}
+                      onClick={() =>
+                        setCuotaParaPagar({
+                          id: cuota.id,
+                          periodo: cuota.periodo,
+                          monto: cuota.monto,
+                          unidadNumero: unidadSeleccionada.numero,
+                        })
+                      }
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Pagar en línea
+                    </Button>
                   </div>
                 );
               })}
@@ -664,7 +678,7 @@ export default function PortalResidentePage() {
             value={newReserva.zona_id}
             onValueChange={(v) => setNewReserva({ ...newReserva, zona_id: v })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-12 text-base">
               <SelectValue placeholder="Selecciona una zona" />
             </SelectTrigger>
             <SelectContent>
@@ -689,6 +703,7 @@ export default function PortalResidentePage() {
             <Label>Fecha</Label>
             <Input
               type="date"
+              className="h-12 text-base"
               value={newReserva.fecha}
               onChange={(e) =>
                 setNewReserva({ ...newReserva, fecha: e.target.value })
@@ -701,6 +716,7 @@ export default function PortalResidentePage() {
               <Label>Inicio</Label>
               <Input
                 type="time"
+                className="h-12 text-base"
                 value={newReserva.hora_inicio}
                 onChange={(e) =>
                   setNewReserva({ ...newReserva, hora_inicio: e.target.value })
@@ -712,6 +728,7 @@ export default function PortalResidentePage() {
               <Label>Fin</Label>
               <Input
                 type="time"
+                className="h-12 text-base"
                 value={newReserva.hora_fin}
                 onChange={(e) =>
                   setNewReserva({ ...newReserva, hora_fin: e.target.value })
@@ -722,7 +739,7 @@ export default function PortalResidentePage() {
           </div>
 
           <Button
-            className="w-full h-12 text-lg mt-2"
+            className="w-full h-12 min-h-[48px] text-base mt-2"
             onClick={handleCreateReserva}
             disabled={
               !puedeReservar ||
@@ -737,15 +754,15 @@ export default function PortalResidentePage() {
 
       {/* PQR */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between min-h-[64px] py-4">
           <CardTitle className="text-lg">Mis PQR</CardTitle>
           <Dialog open={isPQROpen} onOpenChange={setIsPQROpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
+              <Button className="h-10 min-h-[48px] min-w-[48px] px-4">
                 <Plus className="w-4 h-4 mr-1" /> Nueva PQR
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className={DIALOG_MOBILE}>
               <DialogHeader>
                 <DialogTitle>Nueva PQR</DialogTitle>
               </DialogHeader>
@@ -758,7 +775,7 @@ export default function PortalResidentePage() {
                       setNewPQR({ ...newPQR, tipo: v as "peticion" | "queja" | "reclamo" })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 text-base">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -771,6 +788,7 @@ export default function PortalResidentePage() {
                 <div className="space-y-2">
                   <Label>Asunto</Label>
                   <Input
+                    className="h-12 text-base"
                     value={newPQR.asunto}
                     onChange={(e) =>
                       setNewPQR({ ...newPQR, asunto: e.target.value })
@@ -780,7 +798,7 @@ export default function PortalResidentePage() {
                 <div className="space-y-2">
                   <Label>Descripción</Label>
                   <textarea
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={newPQR.descripcion}
                     onChange={(e) =>
                       setNewPQR({ ...newPQR, descripcion: e.target.value })
@@ -788,7 +806,7 @@ export default function PortalResidentePage() {
                   />
                 </div>
                 <Button
-                  className="w-full"
+                  className="w-full h-12 min-h-[48px]"
                   onClick={handleCreatePQR}
                   disabled={
                     !newPQR.asunto || !newPQR.descripcion || createPQR.isPending

@@ -184,7 +184,7 @@ function ComplianceSemaforo() {
             Cumplimiento legal al día — {obligaciones.length} obligaciones verificadas
           </span>
         </div>
-        <Link to="/cumplimiento" className="text-xs text-green-600 hover:underline font-medium shrink-0">
+        <Link to="/cumplimiento" className="text-xs text-green-600 hover:underline font-medium shrink-0 inline-flex items-center min-h-[48px] px-2">
           Ver detalle →
         </Link>
       </motion.div>
@@ -200,7 +200,7 @@ function ComplianceSemaforo() {
               <ShieldCheck className="h-4 w-4" />
               Semáforo de cumplimiento legal
             </CardTitle>
-            <Link to="/cumplimiento" className="text-xs text-primary hover:underline font-medium">
+            <Link to="/cumplimiento" className="text-xs text-primary hover:underline font-medium inline-flex items-center min-h-[48px] px-2">
               Ver todas →
             </Link>
           </div>
@@ -295,7 +295,7 @@ export default function DashboardPHPage() {
             <p className="font-medium">
               ⚠️ Hay {unidadesEnMora} unidades con cuotas vencidas.
             </p>
-            <Link to="/unidades" className="text-sm font-semibold hover:underline">
+            <Link to="/unidades" className="text-sm font-semibold hover:underline inline-flex items-center min-h-[48px] px-2">
               Ver unidades en mora →
             </Link>
           </div>

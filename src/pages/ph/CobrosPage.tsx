@@ -197,6 +197,7 @@ export default function CobrosPage() {
             </SelectContent>
           </Select>
           <Button 
+            className="min-h-[48px]"
             onClick={() => setOpenGenerateDialog(true)} 
             disabled={yaExistenCuotas || !tenant || previewCount === 0}
           >
@@ -235,7 +236,8 @@ export default function CobrosPage() {
       <Card>
         <CardContent className="p-0">
           <div className="rounded-md border">
-            <table className="w-full text-sm text-left">
+            {/* Desktop Table */}
+            <table className="hidden md:table w-full text-sm text-left">
               <thead className="text-xs uppercase bg-muted/50">
                 <tr>
                   <th className="px-6 py-3">Unidad</th>
@@ -262,6 +264,7 @@ export default function CobrosPage() {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="min-h-[48px] px-4"
                           onClick={() => {
                             setSelectedCuota(cuota.id)
                             setFechaPago(new Date().toISOString().slice(0, 10))
@@ -284,6 +287,50 @@ export default function CobrosPage() {
                 )}
               </tbody>
             </table>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden divide-y">
+              {cuotas.map((cuota) => (
+                <div key={cuota.id} className="p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-lg">
+                      {cuota.unidades?.numero} <span className="text-sm font-normal text-muted-foreground">({cuota.unidades?.tipo})</span>
+                    </span>
+                    <Badge variant={cuota.estado === 'pagado' ? 'default' : cuota.estado === 'vencido' ? 'destructive' : 'secondary'}
+                           className={cuota.estado === 'pendiente' ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : cuota.estado === 'pagado' ? 'bg-green-600 hover:bg-green-700' : ''}>
+                      {cuota.estado}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Monto</span>
+                    <span className="font-medium">{formatCOP(cuota.monto)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Fecha pago</span>
+                    <span>{cuota.fecha_pago || '-'}</span>
+                  </div>
+                  {cuota.estado !== 'pagado' && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 min-h-[48px]"
+                      onClick={() => {
+                        setSelectedCuota(cuota.id)
+                        setFechaPago(new Date().toISOString().slice(0, 10))
+                        setComprobanteUrl("")
+                        setOpenPagoDialog(true)
+                      }}
+                    >
+                      Registrar pago
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {cuotas.length === 0 && !isLoading && (
+                <div className="p-8 text-center text-muted-foreground">
+                  No hay cuotas generadas para este periodo.
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -313,9 +360,9 @@ export default function CobrosPage() {
               Total proyectado a recaudar: {formatCOP(previewTotal)}
             </div>
           </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setOpenGenerateDialog(false)}>Cancelar</Button>
-            <Button onClick={handleConfirmarGenerar} disabled={generarCuotas.isPending}>
+          <DialogFooter className="mt-4 gap-2">
+            <Button variant="outline" className="min-h-[48px]" onClick={() => setOpenGenerateDialog(false)}>Cancelar</Button>
+            <Button className="min-h-[48px]" onClick={handleConfirmarGenerar} disabled={generarCuotas.isPending}>
               Confirmar y generar
             </Button>
           </DialogFooter>
@@ -333,7 +380,8 @@ export default function CobrosPage() {
               <Input 
                 type="date" 
                 value={fechaPago} 
-                onChange={(e) => setFechaPago(e.target.value)} 
+                onChange={(e) => setFechaPago(e.target.value)}
+                className="min-h-[48px]"
               />
             </div>
             <div className="space-y-2">
@@ -342,10 +390,11 @@ export default function CobrosPage() {
                 type="text" 
                 placeholder="https://..."
                 value={comprobanteUrl} 
-                onChange={(e) => setComprobanteUrl(e.target.value)} 
+                onChange={(e) => setComprobanteUrl(e.target.value)}
+                className="min-h-[48px]"
               />
             </div>
-            <Button onClick={handlePago} disabled={registrarPago.isPending} className="w-full">
+            <Button onClick={handlePago} disabled={registrarPago.isPending} className="w-full min-h-[48px]">
               Registrar
             </Button>
           </div>

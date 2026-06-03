@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
 
 // ─── Metadatos estáticos por tipo ────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ interface Props {
 export default function ObligacionCard({ obligacion, readonly }: Props) {
   const { data: tenant } = useTenant()
   const update = useUpdateObligacion()
+  const { toast } = useToast()
 
   const [localFecha, setLocalFecha] = useState(obligacion.fecha_vencimiento?.slice(0, 10) ?? '')
   const [localNotas, setLocalNotas] = useState(obligacion.notas ?? '')
@@ -88,8 +90,9 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
         .from('documentos-legales')
         .getPublicUrl(path)
       await update.mutateAsync({ id: obligacion.id, documento_url: publicUrl })
-    } catch (err) {
-      console.error('Error subiendo documento:', err)
+      toast({ title: 'Documento subido exitosamente' })
+    } catch (err: any) {
+      toast({ title: 'Error subiendo documento', description: err.message, variant: 'destructive' })
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
@@ -129,7 +132,7 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
             onChange={e => handleFechaChange(e.target.value)}
             disabled={readonly}
             className={cn(
-              'w-full rounded-md border bg-background px-3 py-1.5 text-sm',
+              'w-full rounded-md border bg-background px-3 min-h-[48px] text-sm',
               'focus:outline-none focus:ring-2 focus:ring-primary/50',
               readonly && 'opacity-60 cursor-not-allowed',
             )}
@@ -142,8 +145,8 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             {obligacion.documento_url ? (
               <a href={obligacion.documento_url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-1 text-xs text-primary hover:underline">
-                <ExternalLink className="h-3 w-3" />
+                className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[48px] px-2">
+                <ExternalLink className="h-4 w-4" />
                 Ver documento
               </a>
             ) : (
@@ -155,7 +158,7 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground border rounded px-2 py-0.5 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground border rounded px-3 min-h-[48px] transition-colors disabled:opacity-50"
                 >
                   {uploading
                     ? <Loader2 className="h-3 w-3 animate-spin" />
@@ -183,7 +186,7 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
             disabled={readonly}
             rows={2}
             placeholder="Agregar notas o recordatorios..."
-            className="text-sm resize-none"
+            className="text-sm resize-none min-h-[48px]"
           />
         </div>
       </CardContent>
