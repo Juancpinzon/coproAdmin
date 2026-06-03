@@ -172,6 +172,7 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 | `src/hooks/useInvitarMiembro.ts` | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor. |
 
 Nuevos ítems pendientes:
+- Fase 8: any en TypeScript — múltiples instancias detectadas por linter, pasada dedicada pendiente antes de producción
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
 - Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
 - Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
@@ -789,13 +790,27 @@ const obligacionesIniciales = [
 - [ ] **Criterio de éxito:** residente paga online, estado cambia 
       sin intervención del admin
 
-### Fase 8 — Pulido y Deploy _(no iniciado)_
+### Fase 8 — Pulido y Deploy ⏳ 60%
 
-- [ ] Responsive completo — portal residente mobile-first
-- [ ] Limpiar `useInvitarMiembro.ts` (posible lógica fondos residual)
+- [x] Responsive portal residente mobile-first
+      Touch targets 48px, font 16px, modales full-screen móvil,
+      botones full-width en móvil, DIALOG_MOBILE en 4 DialogContent
+- [x] Responsive panel admin mobile-first
+      DashboardPHPage, CobrosPage, CumplimientoPage mobile-ready
+      AppLayout: sidebar drawer en móvil, fijo en desktop
+- [x] Deuda técnica limpiada:
+      Modales de préstamos/amortización ya no existen en repo
+      useFiadoresDisponibles ya no existe en repo
+- [x] Auditoría consola limpia:
+      useSuperAdmin.ts, OnboardingPHPage.tsx, NotFound.tsx
+- [x] Grep residuos src/: 0 coincidencias FondoApp/fondoapp/
+      aporte_inicial/fondo familiar
+- [ ] any en TypeScript — pasada dedicada pendiente
 - [ ] Dominio custom + variables de entorno en producción
-- [ ] Número de WhatsApp real en `WA_DEMO_HREF` (LandingPage + SuscripcionVencidaPage)
-- [ ] **Criterio de éxito:** funciona en Chrome mobile sin errores de consola
+- [ ] Número WhatsApp real en WA_DEMO_HREF (3158966130)
+      LandingPage.tsx + SuscripcionVencidaPage.tsx
+- [ ] Prueba Chrome mobile sin errores de consola
+- [ ] **Criterio de éxito:** funciona en Chrome mobile sin errores
 
 ---
 
