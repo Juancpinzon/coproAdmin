@@ -87,9 +87,7 @@ coproAdmin/
 │   │   ├── shared/
 │   │   │   └── TrialBanner.tsx        # Banner de trial activo
 │   │   ├── modals/
-│   │   │   ├── RegistrarPagoModal.tsx # Registrar pago de cuota
-│   │   │   ├── InvitarMiembroModal.tsx
-│   │   │   └── [ver nota deuda técnica]
+│   │   │   └── InvitarMiembroModal.tsx
 │   │   ├── ph/
 │   │   │   ├── SidebarAyuda.tsx
 │   │   │   └── ContenidoAyuda.tsx
@@ -100,16 +98,15 @@ coproAdmin/
 │   │   ├── useAuth.ts                 # Sesión Supabase + signOut
 │   │   ├── useTenant.ts               # Tenant activo del usuario autenticado
 │   │   ├── useCurrentMiembro.ts       # Miembro del usuario autenticado
-│   │   ├── useMiembros.ts             # CRUD propietarios y residentes
-│   │   ├── useUnidades.ts             # Unidades del conjunto
-│   │   ├── useCuotasAdmin.ts          # Cuotas de administración por unidad
-│   │   ├── useZonasComunes.ts         # Zonas comunes
-│   │   ├── useReservas.ts             # Reservas de zonas
+│   │   ├── useMiembrosPH.ts           # Lista miembros activos del conjunto (id, nombre, rol)
+│   │   ├── useUnidades.ts             # CRUD unidades del conjunto
+│   │   ├── useCuotasAdmin.ts          # Cuotas, generación masiva, registro de pago
+│   │   ├── useZonasComunes.ts         # CRUD zonas comunes
+│   │   ├── useReservas.ts             # Reservas con detección de conflictos
 │   │   ├── usePQR.ts                  # Peticiones, quejas, reclamos
-│   │   ├── usePresupuesto.ts          # Presupuesto anual
-│   │   ├── useReportes.ts             # Reportes del conjunto
+│   │   ├── usePresupuesto.ts          # Presupuesto anual por categoría
 │   │   ├── useInvitarMiembro.ts       # Invitar miembro por email
-│   │   ├── useWizardPH.ts             # Estado del wizard de onboarding
+│   │   ├── useWizardPH.ts             # Stub vacío — lógica del wizard está en OnboardingPHPage
 │   │   ├── useSuperAdmin.ts           # Funciones exclusivas del superadmin
 │   │   └── use-toast.ts              # shadcn/ui toast utility
 │   ├── pages/
@@ -165,21 +162,14 @@ coproAdmin/
 
 ---
 
-## ⚠️ Deuda Técnica — Residuos de Fondos Familiares
+## ⚠️ Deuda Técnica Pendiente
 
-Este repo se separó de un proyecto anterior (`fondoAdmin`) que incluía la vertical de fondos familiares. Los siguientes archivos son residuos que **no corresponden a PH** y deben eliminarse en cuanto dejen de ser referenciados:
+La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 
-| Archivo                                            | Razón para eliminar                        |
-| -------------------------------------------------- | ------------------------------------------ |
-| `src/components/modals/AprobarPrestamoModal.tsx`   | Lógica de préstamos — no existe en PH      |
-| `src/components/modals/RechazarPrestamoModal.tsx`  | Ídem                                       |
-| `src/components/modals/SolicitarPrestamoModal.tsx` | Ídem                                       |
-| `src/components/modals/TablaAmortizacionModal.tsx` | Amortización de cuotas de préstamo — no PH |
-| `src/hooks/useFiadoresDisponibles.ts`              | Fiadores de préstamos — no PH              |
-| `src/lib/amortizacion.ts`                          | Cálculo de amortización — no PH            |
-| `src/lib/mockData.ts`                              | Mock data del sistema anterior             |
-
-> Antes de borrar: verificar con `grep -r "NombreDelArchivo" src/` que ningún componente PH activo lo importe.
+| Archivo | Problema | Acción |
+|---|---|---|
+| `supabase/migrations/003_features.sql` | Contiene stored procedures de amortización y aprobación de préstamos (fondos) | No borrar — afectaría el historial de BD. Ignorar al leer migraciones. |
+| `src/hooks/useInvitarMiembro.ts` | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor. |
 
 ---
 
@@ -701,44 +691,50 @@ const obligacionesIniciales = [
 - [ ] Sección "¿Para quién es CoproAdmin?" entre Features y HowItWorks
 - [ ] **Criterio de éxito:** landing sin rastro de FondoApp, sin testimonios falsos, links legales funcionales, número de WhatsApp real
 
-### Fase 2 — Wizard de Onboarding _(en progreso — archivos existen)_
+### Fase 2 — Wizard de Onboarding ✅ COMPLETA
 
-- [x] Wizard 4 pasos construido (StepConjunto, StepUnidades, StepCuota, StepZonas)
-- [x] `useWizardPH.ts` para estado del wizard
-- [ ] Validación NIT con dígito verificador DIAN
-- [ ] Importar unidades por CSV
-- [ ] Seed automático completo al finalizar wizard
-- [ ] Borrador en localStorage `ph_onboarding_draft` con recuperación
-- [ ] Rollback completo si falla cualquier INSERT
-- [ ] **Criterio de éxito:** desde cero hasta dashboard en menos de 20 minutos
+- [x] Wizard 5 pasos completo (StepConjunto, StepCuota, StepUnidades, StepZonas, StepResumen)
+- [x] Validación NIT con cálculo de dígito verificador DIAN en StepConjunto
+- [x] Importar unidades desde Excel/CSV con parser inteligente
+- [x] Distribución automática de coeficientes
+- [x] Seed automático de zonas y miembros al finalizar
+- [x] Borrador en localStorage con recuperación automática
+- [x] Pantalla de éxito post-creación
+- [~] Rollback transaccional completo — no verificado; la lógica de inserción es secuencial, no usa una transacción atómica explícita
+- [x] **Criterio de éxito:** desde cero hasta dashboard en menos de 20 minutos
 
-### Fase 3 — Módulo de Cobros _(en progreso — archivos existen)_
+### Fase 3 — Módulo de Cobros ✅ COMPLETA
 
-- [x] `CobrosPage.tsx` y `useCuotasAdmin.ts` existen
-- [ ] Listado de unidades con mora calculada en runtime
-- [ ] Generación masiva con previsualización obligatoria
-- [ ] Registro manual de pago + comprobante en Storage
-- [ ] Estado de cuenta por unidad
-- [ ] Edge Function `generar-cuotas` idempotente (directorio `supabase/functions/` vacío)
-- [ ] **Criterio de éxito:** generar cuotas, registrar pago, ver movimiento en fondo del conjunto
+- [x] Listado de cuotas con estado de mora calculado en runtime
+- [x] Generación masiva con previsualización obligatoria (muestra total y conteo antes de confirmar)
+- [x] Dos modos: cuota fija o proporcional por coeficiente
+- [x] Registro manual de pago con fecha y URL de comprobante
+- [x] Pago registrado atómicamente: crea pago + actualiza cuota + agrega movimiento de fondo
+- [x] Exportación a Excel, PDF y CSV
+- [~] Edge Function `generar-cuotas` — la lógica está en `useCuotasAdmin` (frontend), no en Edge Function. Funciona pero sin la garantía idempotente del servidor
+- [x] **Criterio de éxito:** generar cuotas, registrar pago, ver movimiento en fondo del conjunto
 
-### Fase 4 — Zonas Comunes y Reservas _(en progreso — archivos existen)_
+### Fase 4 — Zonas Comunes y Reservas ✅ COMPLETA
 
-- [x] `ZonasPage.tsx`, `ReservasPage.tsx`, `PortalResidentePage.tsx` existen
-- [x] `useZonasComunes.ts`, `useReservas.ts` existen
-- [ ] CRUD zonas en panel admin
-- [ ] Calendario de reservas con disponibilidad en tiempo real
-- [ ] Bloqueo automático a unidades en mora
-- [ ] Portal del residente: cuotas + reservas
-- [ ] **Criterio de éxito:** moroso no puede reservar, residente al día sí puede
+- [x] CRUD completo de zonas comunes (crear, editar, activar/desactivar)
+- [x] Toggle "bloquear en mora" por zona
+- [x] Calendario semanal de reservas (18h por día, 6am–11pm)
+- [x] Detección de conflictos antes de confirmar reserva
+- [x] Cancelación con motivo obligatorio
+- [x] Bloqueo automático a unidades en mora (verificado antes de crear reserva)
+- [x] Portal del residente: estado de cuenta + reservas + PQR
+- [x] **Criterio de éxito:** moroso no puede reservar, residente al día sí puede
 
-### Fase 5 — PQR y Presupuesto _(en progreso — archivos existen)_
+### Fase 5 — PQR y Presupuesto ✅ COMPLETA
 
-- [x] `PQRPage.tsx`, `PresupuestoPage.tsx` existen
-- [x] `usePQR.ts`, `usePresupuesto.ts` existen
-- [ ] Módulo PQR: crear, gestionar, cerrar con trazabilidad completa
-- [ ] Módulo Presupuesto: cargar por categorías, ejecución vs. presupuestado
-- [ ] **Criterio de éxito:** PQR de residente visible en panel admin con estado
+- [x] PQR: crear (residente) con tipo, asunto, descripción
+- [x] PQR: gestionar (admin) — cambiar estado a 'en_gestion' con respuesta parcial
+- [x] PQR: cerrar con respuesta final + fecha_cierre automática
+- [x] PQR: filtros por tipo y estado, contadores en header
+- [x] Presupuesto: CRUD por categoría (admin, mant., seguridad, servicios, reserva)
+- [x] Presupuesto: selector por año (anterior, actual, siguiente)
+- [x] Presupuesto: resumen total y desglose por categoría
+- [x] **Criterio de éxito:** PQR de residente visible en panel admin con estado
 
 ### Fase 6 — Módulo de Cumplimiento Legal _(no iniciado)_
 
@@ -759,8 +755,9 @@ const obligacionesIniciales = [
 ### Fase 8 — Pulido y Deploy _(no iniciado)_
 
 - [ ] Responsive completo — portal residente mobile-first
-- [ ] Limpiar deuda técnica (modales y hooks de fondos familiares)
+- [ ] Limpiar `useInvitarMiembro.ts` (posible lógica fondos residual)
 - [ ] Dominio custom + variables de entorno en producción
+- [ ] Número de WhatsApp real en `WA_DEMO_HREF` (LandingPage + SuscripcionVencidaPage)
 - [ ] **Criterio de éxito:** funciona en Chrome mobile sin errores de consola
 
 ---
