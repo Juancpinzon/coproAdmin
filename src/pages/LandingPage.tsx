@@ -23,6 +23,11 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+// ─── Config ───────────────────────────────────────────────────────────────────
+
+const WA_DEMO_HREF =
+  'https://wa.me/573000000000?text=Hola%2C%20quiero%20conocer%20CoproAdmin%20para%20mi%20conjunto'
+
 // ─── NavBar ───────────────────────────────────────────────────────────────────
 
 const NavBar = () => (
@@ -39,9 +44,9 @@ const NavBar = () => (
         whileTap={{ scale: 0.95 }}
       >
         <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-          <span className="text-white font-bold text-lg">F</span>
+          <span className="text-white font-bold text-lg">C</span>
         </div>
-        <span className="text-xl font-bold text-blue-600">FondoApp</span>
+        <span className="text-xl font-bold text-blue-600">CoproAdmin</span>
       </motion.div>
       <div className="flex items-center gap-4">
         <Link
@@ -400,22 +405,64 @@ const HowItWorksSection = () => {
 
 // ─── PricingSection ───────────────────────────────────────────────────────────
 
-const plans = [
+interface Plan {
+  name: string
+  desc: string
+  monthly: number | null
+  annual: number | null
+  features: string[]
+  highlight: boolean
+  ctaLabel: string
+  ctaHref?: string
+}
+
+const plans: Plan[] = [
   {
     name: 'PH Básico',
     desc: 'Para copropiedades pequeñas',
     monthly: 89000,
     annual: 890000,
-    features: ['Hasta 50 unidades', 'Cobros automáticos', 'PQR digital', 'Portal de residentes', 'Soporte prioritario'],
+    features: [
+      'Hasta 50 unidades',
+      'Cobros automáticos',
+      'PQR digital',
+      'Portal del residente',
+      'Reservas de zonas comunes',
+      'Soporte por email',
+    ],
     highlight: false,
+    ctaLabel: 'Comenzar',
   },
   {
     name: 'PH Pro',
-    desc: 'Para conjuntos residenciales grandes',
+    desc: '51 a 200 unidades',
     monthly: 149000,
     annual: 1490000,
-    features: ['51 unidades en adelante', 'Reservas de zonas', 'Presupuesto anual', 'Múltiples administradores', 'Soporte 24/7'],
+    features: [
+      'Todo lo del plan Básico',
+      'Presupuesto anual',
+      'Múltiples administradores',
+      'Reportes avanzados',
+      'Soporte prioritario',
+    ],
     highlight: true,
+    ctaLabel: 'Comenzar',
+  },
+  {
+    name: 'PH Enterprise',
+    desc: 'Más de 200 unidades o conjuntos mixtos',
+    monthly: null,
+    annual: null,
+    features: [
+      'Todo lo del plan Pro',
+      'Integración contable',
+      'Facturación electrónica DIAN',
+      'SLA dedicado',
+      'Implementación asistida',
+    ],
+    highlight: false,
+    ctaLabel: 'Hablar con ventas',
+    ctaHref: WA_DEMO_HREF,
   },
 ]
 
@@ -489,23 +536,29 @@ const PricingSection = () => {
               </p>
 
               <div className="h-16 flex items-baseline gap-1 mb-6 overflow-hidden">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={annual ? 'annual' : 'monthly'}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="flex items-baseline gap-1"
-                  >
-                    <span className={`text-4xl font-extrabold ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
-                      ${formatCOP(annual ? plan.annual : plan.monthly)}
-                    </span>
-                    <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-slate-400'}`}>
-                      /{annual ? 'año' : 'mes'}
-                    </span>
-                  </motion.div>
-                </AnimatePresence>
+                {plan.monthly == null ? (
+                  <span className={`text-4xl font-extrabold ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
+                    Consultar
+                  </span>
+                ) : (
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={annual ? 'annual' : 'monthly'}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -20, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex items-baseline gap-1"
+                    >
+                      <span className={`text-4xl font-extrabold ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
+                        ${formatCOP(annual ? (plan.annual ?? 0) : plan.monthly)}
+                      </span>
+                      <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-slate-400'}`}>
+                        /{annual ? 'año' : 'mes'}
+                      </span>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -519,19 +572,35 @@ const PricingSection = () => {
                 ))}
               </ul>
 
-              <Link to="/registro">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    className={`w-full ${
-                      plan.highlight
-                        ? 'bg-white text-blue-600 hover:bg-blue-50'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    Comenzar
-                  </Button>
-                </motion.div>
-              </Link>
+              {plan.ctaHref ? (
+                <a href={plan.ctaHref} target="_blank" rel="noopener noreferrer">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      className={`w-full ${
+                        plan.highlight
+                          ? 'bg-white text-blue-600 hover:bg-blue-50'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {plan.ctaLabel}
+                    </Button>
+                  </motion.div>
+                </a>
+              ) : (
+                <Link to="/registro">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      className={`w-full ${
+                        plan.highlight
+                          ? 'bg-white text-blue-600 hover:bg-blue-50'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      }`}
+                    >
+                      {plan.ctaLabel}
+                    </Button>
+                  </motion.div>
+                </Link>
+              )}
             </motion.div>
           ))}
         </div>
@@ -541,31 +610,6 @@ const PricingSection = () => {
 }
 
 // ─── TestimonialsSection ──────────────────────────────────────────────────────
-// TODO: reemplazar con testimonios reales cuando tengas los primeros clientes
-
-const testimonials = [
-  {
-    initials: 'CM',
-    color: 'bg-blue-500',
-    name: 'Carlos M.',
-    place: 'Conjunto Los Pinos, Bogotá',
-    text: 'Antes perdíamos horas en Excel. Ahora todo es automático y los residentes ven su estado de cuenta en tiempo real.',
-  },
-  {
-    initials: 'AR',
-    color: 'bg-purple-500',
-    name: 'Ana R.',
-    place: 'Torres del Norte, Medellín',
-    text: 'Los residentes pagan a tiempo porque ven su estado en tiempo real. La morosidad bajó un 40% en tres meses.',
-  },
-  {
-    initials: 'JP',
-    color: 'bg-teal-500',
-    name: 'Jorge P.',
-    place: 'Ciudadela El Remanso, Cali',
-    text: 'El módulo de PQR nos ahorró conflictos con los residentes. Todo queda registrado y con trazabilidad.',
-  },
-]
 
 const TestimonialsSection = () => {
   const ref = useRef<HTMLElement>(null)
@@ -573,49 +617,27 @@ const TestimonialsSection = () => {
 
   return (
     <section ref={ref} className="py-24 bg-slate-50 px-4">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-3xl text-center">
         <motion.div
-          className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Lo que dicen nuestros usuarios
+            Lo que dicen nuestros primeros conjuntos
           </h2>
-          <p className="text-slate-500 text-lg">Historias reales de copropiedades colombianas.</p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              whileHover={{ y: -6, boxShadow: '0 16px 32px rgba(0,0,0,0.08)' }}
-              className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm cursor-default"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${t.color}`}
-                >
-                  {t.initials}
-                </div>
-                <div>
-                  <div className="font-bold text-slate-900 text-sm">{t.name}</div>
-                  <div className="text-xs text-slate-400">{t.place}</div>
-                </div>
-              </div>
-              <p className="text-slate-600 text-sm leading-relaxed">"{t.text}"</p>
-              <div className="flex gap-1 mt-4">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
+          <p className="text-slate-500 text-lg mb-10">
+            Estamos en etapa de lanzamiento.{' '}
+            ¿Quieres ser el primero en probar CoproAdmin en tu conjunto?
+          </p>
+          <a href={WA_DEMO_HREF} target="_blank" rel="noopener noreferrer">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button size="lg" className="h-14 px-8 text-lg bg-blue-600 hover:bg-blue-700 text-white">
+                Agendar demo gratuita
+              </Button>
             </motion.div>
-          ))}
-        </div>
+          </a>
+        </motion.div>
       </div>
     </section>
   )
@@ -640,9 +662,9 @@ const FooterSection = () => {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <span className="text-white font-bold">F</span>
+                <span className="text-white font-bold">C</span>
               </div>
-              <span className="text-xl font-bold text-white">FondoApp</span>
+              <span className="text-xl font-bold text-white">CoproAdmin</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
               La plataforma de administración para copropiedades colombianas.
@@ -670,15 +692,15 @@ const FooterSection = () => {
           <div>
             <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Términos de uso</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacidad</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Cookies</a></li>
+              <li><Link to="/terminos-de-uso" className="hover:text-white transition-colors">Términos de uso</Link></li>
+              <li><Link to="/politica-privacidad" className="hover:text-white transition-colors">Privacidad</Link></li>
+              <li><Link to="/politica-cookies" className="hover:text-white transition-colors">Cookies</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-slate-800 pt-8 text-center text-sm">
-          © 2026 FondoApp. Todos los derechos reservados. Hecho con ❤️ en Colombia.
+          © 2026 CoproAdmin. Todos los derechos reservados. Hecho con ❤️ en Colombia.
         </div>
       </div>
     </motion.footer>

@@ -24,6 +24,9 @@ import PresupuestoPage from "./pages/ph/PresupuestoPage";
 import AyudaPage from "./pages/ph/AyudaPage";
 import SuscripcionVencidaPage from "./pages/SuscripcionVencidaPage";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
+import TerminosDeUsoPage from "./pages/TerminosDeUsoPage";
+import PoliticaCookiesPage from "./pages/PoliticaCookiesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +57,9 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegistroPage />} />
+        <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
+        <Route path="/terminos-de-uso" element={<TerminosDeUsoPage />} />
+        <Route path="/politica-cookies" element={<PoliticaCookiesPage />} />
         <Route path="*" element={<LandingPage />} />
       </Routes>
     );
@@ -114,6 +120,9 @@ function AppContent() {
           <Route path="/presupuesto" element={<PresupuestoPage />} />
           <Route path="/portal" element={<PortalResidentePage />} />
           <Route path="/ayuda" element={<AyudaPage />} />
+          <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
+          <Route path="/terminos-de-uso" element={<TerminosDeUsoPage />} />
+          <Route path="/politica-cookies" element={<PoliticaCookiesPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AppLayout>
