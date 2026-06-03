@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useTenant } from "./useTenant";
 import { useCurrentMiembro } from "./useCurrentMiembro";
 import { useAuth } from "./useAuth";
+import { calcularDiasHabilesRestantes } from "@/lib/utils";
 
 // ─── Tipos ────────────────────────────────────────────────────
 
@@ -45,6 +46,8 @@ export interface SolicitudARCOEnriquecida extends SolicitudARCO {
   diasRestantes: number;
   /** true si el plazo legal ya venció y el estado aún no es "resuelta" */
   plazoVencido: boolean;
+  /** Días hábiles hasta fecha_limite. Negativo = plazo vencido. */
+  diasHabilesRestantes: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -60,10 +63,12 @@ function calcularDiasRestantesARCO(fechaLimite: string): number {
 
 function enriquecerARCO(raw: SolicitudARCO): SolicitudARCOEnriquecida {
   const diasRestantes = calcularDiasRestantesARCO(raw.fecha_limite);
+  const diasHabilesRestantes = calcularDiasHabilesRestantes(new Date(raw.fecha_limite));
   return {
     ...raw,
     diasRestantes,
-    plazoVencido: diasRestantes < 0 && raw.estado !== "resuelta",
+    diasHabilesRestantes,
+    plazoVencido: diasHabilesRestantes < 0 && raw.estado !== "resuelta",
   };
 }
 
@@ -213,7 +218,7 @@ export function useSolicitudesARCOPropias() {
   const { data: tenant } = useTenant();
   const { data: miembro } = useCurrentMiembro(user ?? null);
 
-  return useQuery<SolicitudARCOEnriquecida[]>({
+  const query = useQuery<SolicitudARCOEnriquecida[]>({
     queryKey: ["arco", tenant?.id, miembro?.id],
     queryFn: async () => {
       if (!tenant?.id || !miembro?.id) return [];
@@ -230,6 +235,17 @@ export function useSolicitudesARCOPropias() {
     },
     enabled: !!tenant?.id && !!miembro?.id,
   });
+
+  const solicitudesArco = query.data ?? [];
+  const solicitudesVencidas = solicitudesArco.filter(s => s.diasHabilesRestantes < 0 && s.estado !== "resuelta");
+  const solicitudesUrgentes = solicitudesArco.filter(s => s.diasHabilesRestantes >= 0 && s.diasHabilesRestantes <= 3 && s.estado !== "resuelta");
+
+  return {
+    ...query,
+    solicitudesArco,
+    solicitudesVencidas,
+    solicitudesUrgentes,
+  };
 }
 
 /**
@@ -240,7 +256,7 @@ export function useSolicitudesARCOPropias() {
 export function useSolicitudesARCOAdmin() {
   const { data: tenant } = useTenant();
 
-  return useQuery<SolicitudARCOEnriquecida[]>({
+  const query = useQuery<SolicitudARCOEnriquecida[]>({
     queryKey: ["arco_admin", tenant?.id],
     queryFn: async () => {
       if (!tenant?.id) return [];
@@ -256,6 +272,17 @@ export function useSolicitudesARCOAdmin() {
     },
     enabled: !!tenant?.id,
   });
+
+  const solicitudesArco = query.data ?? [];
+  const solicitudesVencidas = solicitudesArco.filter(s => s.diasHabilesRestantes < 0 && s.estado !== "resuelta");
+  const solicitudesUrgentes = solicitudesArco.filter(s => s.diasHabilesRestantes >= 0 && s.diasHabilesRestantes <= 3 && s.estado !== "resuelta");
+
+  return {
+    ...query,
+    solicitudesArco,
+    solicitudesVencidas,
+    solicitudesUrgentes,
+  };
 }
 
 // ─── Mutación: crear solicitud ARCO ──────────────────────────

@@ -174,7 +174,9 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 Nuevos ítems pendientes:
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
 - Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
-- Fase 6: seed_obligaciones_iniciales — no lanza excepción si falla; admin puede reintentar desde /cumplimiento
+- Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
+- Fase 6: Storage bucket 'documentos-legales' — documento reemplazado genera path nuevo con timestamp, anterior queda huérfano. Limpiar en Fase 8.
+- Fase 6: Unidad en TablaConsentimientos muestra primera unidad si miembro tiene múltiples — aceptable MVP, revisar post-lanzamiento
 
 ---
 
@@ -742,25 +744,29 @@ const obligacionesIniciales = [
 - [x] Presupuesto: resumen total y desglose por categoría
 - [x] **Criterio de éxito:** PQR de residente visible en panel admin con estado
 
-### Fase 6 — Módulo de Cumplimiento Legal _(en curso)_
+### Fase 6 — Módulo de Cumplimiento Legal ✅ COMPLETA
 
 - [x] Schema BD: tablas consentimientos_tratamiento, solicitudes_arco, obligaciones_legales + RLS + función seed_obligaciones_iniciales
 - [x] useObligaciones.ts — estado calculado en runtime, nunca en BD
 - [x] useConsentimientos.ts — registro y solicitudes ARCO
+      Expone: solicitudesArco, solicitudesVencidas, solicitudesUrgentes
+      calcularDiasHabilesRestantes en utils.ts (excluye sábados/domingos)
 - [x] Seed wired al onboarding (OnboardingPHPage.tsx → handleFinish)
 - [x] Banner consentimiento en PortalResidentePage (versión v1.0)
 - [x] Sección ARCO en PortalResidentePage — 4 tipos, modal, toast "10 días hábiles"
 - [x] CumplimientoPage.tsx — /cumplimiento activa, sidebar actualizado
-      Subcarpeta: src/pages/ph/cumplimiento/ObligacionCard.tsx
-      Capítulo 1: cards "Próximamente"
-      Capítulo 2: 6 obligaciones Ley 675 funcionales — fechas editables, subida de documentos a Storage, notas con debounce 800ms, estado calculado en runtime
+      Subcarpeta: src/pages/ph/cumplimiento/
+        ObligacionCard.tsx (165 líneas)
+        TablaConsentimientos.tsx (151 líneas)
+        TablaARCO.tsx (187 líneas)
+      Capítulo 1: panel consentimientos + gestión ARCO para admin_ph
+      Capítulo 2: 6 obligaciones Ley 675 — fechas editables, subida documentos a Storage, notas debounce 800ms, estado calculado en runtime
 - [x] Semáforo ComplianceSemaforo en DashboardPHPage — ordenado por urgencia, insertado después de KPIs
 - [x] Contenido legal real:
       PoliticaPrivacidadPage — Ley 1581/2012 + ARCO + v1.0
       TerminosDeUsoPage — CoproAdmin como herramienta, no administrador
       PoliticaCookiesPage — cookies reales Supabase Auth, sin terceros
-- [ ] Capítulo 1 funcional — panel consentimientos por miembro (admin_ph)
-- [x] **Criterio de éxito:** ✅ admin ve semáforo con 4+ obligaciones rastreadas
+- [x] Criterio de éxito: ✅ admin ve semáforo con 4+ obligaciones rastreadas
 
 ### Fase 7 — Wompi _(no iniciado)_
 

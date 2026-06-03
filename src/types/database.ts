@@ -268,6 +268,7 @@ export interface SolicitudARCO {
   fecha_limite: string;                // timestamp — 14 días desde created_at
   fecha_resolucion: string | null;
   created_at: string;
+  diasHabilesRestantes?: number;       // Calculado en runtime
 }
 
 /**

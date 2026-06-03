@@ -1,8 +1,9 @@
 import { ShieldCheck, FileText, Scale, Loader2 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { useObligaciones } from '@/hooks/useObligaciones'
 import { useMiembroContext } from '@/contexts/MiembroContext'
 import ObligacionCard from './cumplimiento/ObligacionCard'
+import TablaConsentimientos from './cumplimiento/TablaConsentimientos'
+import TablaARCO from './cumplimiento/TablaARCO'
 
 // ─── Resumen de semáforo ──────────────────────────────────────────────────────
 
@@ -74,31 +75,43 @@ export default function CumplimientoPage() {
       </div>
 
       {/* Capítulo 1 — Protección de Datos (Ley 1581) */}
-      <section className="space-y-4">
+      <section className="space-y-6">
         <div className="flex items-center gap-3 pb-2 border-b">
           <FileText className="h-5 w-5 text-muted-foreground" />
           <div>
             <h2 className="text-base font-semibold">Capítulo 1 — Protección de Datos Personales</h2>
             <p className="text-xs text-muted-foreground">Ley 1581 de 2012 · Decreto 1377 de 2013 · Ente de control: SIC</p>
           </div>
-          <Badge variant="secondary" className="ml-auto shrink-0">Próximamente</Badge>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border bg-muted/30 p-4 opacity-60">
-            <p className="text-sm font-medium mb-1">Consentimientos de tratamiento</p>
-            <p className="text-xs text-muted-foreground">
-              Registro de aceptaciones por miembro con fecha, versión de política y canal. Inmutables una vez registrados.
-            </p>
+        {readonly ? (
+          <p className="text-sm text-muted-foreground">
+            Solo el administrador puede ver el panel de consentimientos y solicitudes ARCO.
+          </p>
+        ) : (
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold">Consentimientos de tratamiento</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Estado de aceptación por miembro. Los registros son inmutables una vez guardados.
+                </p>
+              </div>
+              <TablaConsentimientos />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold">Solicitudes ARCO recibidas</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Plazo legal de respuesta: 10 días hábiles (Ley 1581).
+                  Las filas marcadas en rojo tienen 3 días hábiles o menos.
+                </p>
+              </div>
+              <TablaARCO />
+            </div>
           </div>
-          <div className="rounded-lg border bg-muted/30 p-4 opacity-60">
-            <p className="text-sm font-medium mb-1">Solicitudes ARCO</p>
-            <p className="text-xs text-muted-foreground">
-              Gestión de solicitudes de Acceso, Rectificación, Cancelación y Oposición.
-              Plazo legal de respuesta: 10 días hábiles (Ley 1581).
-            </p>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* Capítulo 2 — Obligaciones Ley 675 */}
