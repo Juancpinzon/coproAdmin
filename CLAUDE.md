@@ -177,6 +177,7 @@ Nuevos ítems pendientes:
 - Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
 - Fase 6: Storage bucket 'documentos-legales' — documento reemplazado genera path nuevo con timestamp, anterior queda huérfano. Limpiar en Fase 8.
 - Fase 6: Unidad en TablaConsentimientos muestra primera unidad si miembro tiene múltiples — aceptable MVP, revisar post-lanzamiento
+- Fase 7: VITE_APP_NAME tenía valor FondoApp en .env.local — corregido
 
 ---
 
@@ -768,12 +769,25 @@ const obligacionesIniciales = [
       PoliticaCookiesPage — cookies reales Supabase Auth, sin terceros
 - [x] Criterio de éxito: ✅ admin ve semáforo con 4+ obligaciones rastreadas
 
-### Fase 7 — Wompi _(no iniciado)_
+### Fase 7 — Wompi (pagos online) ⏳ 60%
 
-- [ ] Link de pago por cuota desde portal residente
-- [ ] Webhook Wompi → actualiza cuota a `pagado` automáticamente
-- [ ] Edge Function `webhook-wompi`
-- [ ] **Criterio de éxito:** residente paga online, estado cambia sin intervención del admin
+- [x] src/types/wompi.ts — WompiTransaction, WompiWebhookPayload, 
+      WompiCheckoutConfig
+- [x] src/hooks/useWompi.ts — initCheckout, isConfigured, 
+      WOMPI_SCRIPT_URL
+- [x] src/lib/constants.ts — WOMPI_CURRENCY, WOMPI_MIN_AMOUNT_CENTS
+- [x] PortalResidentePage.tsx — ModalPagoWompi con estado 
+      deshabilitado hasta configurar credenciales
+- [x] supabase/functions/webhook-wompi/index.ts — verificación 
+      HMAC-SHA256, UPDATE cuota, INSERT movimiento_fondo, 
+      idempotencia con guard eq('estado','pendiente')
+- [x] .env.local — VITE_WOMPI_PUBLIC_KEY comentado (pendiente sandbox)
+      Corregido residuo: VITE_APP_NAME=CoproAdmin
+- [ ] Conectar widget real con credenciales sandbox
+- [ ] Deploy Edge Function webhook-wompi a Supabase
+- [ ] Prueba end-to-end: residente paga → cuota cambia a pagado
+- [ ] **Criterio de éxito:** residente paga online, estado cambia 
+      sin intervención del admin
 
 ### Fase 8 — Pulido y Deploy _(no iniciado)_
 
