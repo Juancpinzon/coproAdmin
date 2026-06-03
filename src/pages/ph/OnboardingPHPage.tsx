@@ -152,7 +152,7 @@ export default function OnboardingPHPage() {
       if (tenantError) throw tenantError;
 
       // Unirse como administrador
-      const { data: adminData, error: adminError } = await supabase
+      const { error: adminError } = await supabase
         .from('miembros')
         .insert({
           tenant_id: tenant.id,
@@ -160,9 +160,7 @@ export default function OnboardingPHPage() {
           nombre: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
           email: user.email,
           rol: 'admin_ph'
-        })
-        .select()
-        .single();
+        });
 
       if (adminError) {
         await supabase.from('tenants').delete().eq('id', tenant.id);
@@ -245,6 +243,16 @@ export default function OnboardingPHPage() {
       if (dbZonas.length > 0) {
         const { error: errorZ } = await supabase.from('zonas_comunes').insert(dbZonas);
         if (errorZ) throw errorZ;
+      }
+
+      // Seed obligaciones legales iniciales (Fase 6 — Ley 675 de 2001)
+      // No-throw: el tenant ya existe; el seed es idempotente (ON CONFLICT DO NOTHING).
+      const { error: seedError } = await supabase.rpc('seed_obligaciones_iniciales', {
+        p_tenant_id: tenant.id,
+      });
+      if (seedError) {
+        // No abortar el onboarding por esto — el admin puede reintentarlo desde Cumplimiento
+        console.warn('[onboarding] seed_obligaciones_iniciales falló:', seedError.message);
       }
 
       localStorage.removeItem("ph_onboarding_draft");

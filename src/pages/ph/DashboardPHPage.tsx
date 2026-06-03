@@ -6,9 +6,10 @@ import { useCuotasAdmin, type CuotaAdmin } from '@/hooks/useCuotasAdmin'
 import { usePQR } from '@/hooks/usePQR'
 import { useTenant } from '@/hooks/useTenant'
 import { useReservas } from '@/hooks/useReservas'
+import { useObligaciones, ETIQUETAS_OBLIGACION, type Obligacion } from '@/hooks/useObligaciones'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { TrendingUp, Home, ClipboardList } from 'lucide-react'
+import { TrendingUp, Home, ClipboardList, ShieldCheck } from 'lucide-react'
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(n)
@@ -132,6 +133,98 @@ function UltimosPagos({ cuotasAll }: { cuotasAll: CuotaAdmin[] }) {
   )
 }
 
+// --- ComplianceSemaforo ---
+const ESTADO_ORDER = { vencido: 0, proximo: 1, al_dia: 2 } as const
+
+function dotColor(estado: Obligacion['estado']) {
+  if (estado === 'vencido') return 'bg-red-500'
+  if (estado === 'proximo') return 'bg-yellow-400'
+  return 'bg-green-500'
+}
+function textColor(estado: Obligacion['estado']) {
+  if (estado === 'vencido') return 'text-red-700'
+  if (estado === 'proximo') return 'text-yellow-700'
+  return 'text-green-700'
+}
+function rowBg(estado: Obligacion['estado']) {
+  if (estado === 'vencido') return 'bg-red-50 border-red-200'
+  if (estado === 'proximo') return 'bg-yellow-50 border-yellow-200'
+  return 'bg-green-50 border-green-200'
+}
+function diasLabel(o: Obligacion) {
+  if (o.diasRestantes === null) return null
+  if (o.diasRestantes < 0) return `Venció hace ${Math.abs(o.diasRestantes)} días`
+  if (o.diasRestantes === 0) return 'Vence hoy'
+  return `Vence en ${o.diasRestantes} días`
+}
+
+function ComplianceSemaforo() {
+  const { data: obligaciones = [], isLoading } = useObligaciones()
+
+  if (isLoading || obligaciones.length === 0) return null
+
+  const sorted = [...obligaciones].sort((a, b) => {
+    const diff = ESTADO_ORDER[a.estado] - ESTADO_ORDER[b.estado]
+    if (diff !== 0) return diff
+    if (a.diasRestantes !== null && b.diasRestantes !== null) return a.diasRestantes - b.diasRestantes
+    return 0
+  })
+
+  const urgentes = sorted.filter(o => o.estado !== 'al_dia').slice(0, 3)
+
+  if (urgentes.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+        className="flex items-center justify-between px-4 py-3 rounded-lg border bg-green-50 border-green-200"
+      >
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-sm font-medium text-green-700">
+            Cumplimiento legal al día — {obligaciones.length} obligaciones verificadas
+          </span>
+        </div>
+        <Link to="/cumplimiento" className="text-xs text-green-600 hover:underline font-medium shrink-0">
+          Ver detalle →
+        </Link>
+      </motion.div>
+    )
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4" />
+              Semáforo de cumplimiento legal
+            </CardTitle>
+            <Link to="/cumplimiento" className="text-xs text-primary hover:underline font-medium">
+              Ver todas →
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {urgentes.map(o => (
+              <div key={o.id} className={`flex items-center justify-between px-3 py-2 rounded-md border ${rowBg(o.estado)}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full shrink-0 ${dotColor(o.estado)}`} />
+                  <span className="text-sm font-medium">{ETIQUETAS_OBLIGACION[o.tipo]}</span>
+                </div>
+                {diasLabel(o) && (
+                  <span className={`text-xs font-medium ${textColor(o.estado)}`}>{diasLabel(o)}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
 // --- AccesosRapidos ---
 const accesos = [
   { to: '/cobros', icon: TrendingUp, label: 'Generar cuotas del mes' },
@@ -226,6 +319,8 @@ export default function DashboardPHPage() {
         />
         <KPICard title="Reservas hoy" value={reservasCount} delay={0.4} />
       </div>
+
+      <ComplianceSemaforo />
 
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3"><RecaudoChart cuotasAll={cuotasAll} /></div>

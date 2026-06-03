@@ -736,13 +736,18 @@ const obligacionesIniciales = [
 - [x] Presupuesto: resumen total y desglose por categoría
 - [x] **Criterio de éxito:** PQR de residente visible en panel admin con estado
 
-### Fase 6 — Módulo de Cumplimiento Legal _(no iniciado)_
+### Fase 6 — Módulo de Cumplimiento Legal _(en curso)_
 
-- [ ] Schema: `consentimientos_tratamiento`, `solicitudes_arco`, `obligaciones_legales`
-- [ ] Capítulo 1: consentimientos, flujo ARCO en portal y en admin
-- [ ] Capítulo 2: checklist Ley 675 con semáforo y alertas por fecha
-- [ ] Contenido legal real en /politica-privacidad, /terminos-de-uso, /politica-cookies
-- [ ] Semáforo de cumplimiento en dashboard del admin
+- [x] Schema: `consentimientos_tratamiento`, `solicitudes_arco`, `obligaciones_legales` — migración 007 aplicada en producción
+- [x] Hook `useObligaciones.ts` — fetch + estado calculado en runtime (al_dia/proximo/vencido), `useResumenCumplimiento` para dashboard
+- [x] Hook `useConsentimientos.ts` — consentimientos inmutables, flujo ARCO completo (crear, listar, actualizar estado)
+- [x] Seed automático de 4 obligaciones iniciales al completar onboarding (`seed_obligaciones_iniciales` via RPC)
+- [x] Página `CumplimientoPage.tsx` — Capítulo 1 (cards consentimientos) + Capítulo 2 (checklist Ley 675 con semáforo)
+- [x] Semáforo de cumplimiento en `DashboardPHPage.tsx` (ComplianceSemaforo con useObligaciones)
+- [x] ShieldCheck "Cumplimiento" añadido al sidebar de admin_ph en AppLayout.tsx
+- [x] Banner de consentimiento en portal residente (usar `useConsentimientoVigente`)
+- [x] Sección ARCO en `PortalResidentePage.tsx` (residente crea solicitud, ve historial)
+- [x] Contenido legal real en /politica-privacidad, /terminos-de-uso, /politica-cookies (v1.0 — Ley 1581/2012, Ley 675/2001)
 - [ ] **Criterio de éxito:** admin ve semáforo con al menos 4 obligaciones rastreadas
 
 ### Fase 7 — Wompi _(no iniciado)_

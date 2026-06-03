@@ -16,6 +16,7 @@ import {
   CalendarDays,
   PieChart,
   HelpCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMiembroContext } from "@/contexts/MiembroContext";
@@ -36,6 +37,7 @@ const phAdminNavItems: NavItem[] = [
   { to: "/reservas", icon: CalendarDays, label: "Reservas" },
   { to: "/presupuesto", icon: PieChart, label: "Presupuesto" },
   { to: "/pqr", icon: MessageSquare, label: "PQR" },
+  { to: "/cumplimiento", icon: ShieldCheck, label: "Cumplimiento" },
   { to: "/portal", icon: User, label: "Mi Portal" },
   { to: "/ayuda", icon: HelpCircle, label: "Manual de Uso" },
 ];

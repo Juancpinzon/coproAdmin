@@ -22,6 +22,7 @@ import ReservasPage from "./pages/ph/ReservasPage";
 import PortalResidentePage from "./pages/ph/PortalResidentePage";
 import PresupuestoPage from "./pages/ph/PresupuestoPage";
 import AyudaPage from "./pages/ph/AyudaPage";
+import CumplimientoPage from "./pages/ph/CumplimientoPage";
 import SuscripcionVencidaPage from "./pages/SuscripcionVencidaPage";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
@@ -120,6 +121,7 @@ function AppContent() {
           <Route path="/presupuesto" element={<PresupuestoPage />} />
           <Route path="/portal" element={<PortalResidentePage />} />
           <Route path="/ayuda" element={<AyudaPage />} />
+          <Route path="/cumplimiento" element={<CumplimientoPage />} />
           <Route path="/politica-privacidad" element={<PoliticaPrivacidadPage />} />
           <Route path="/terminos-de-uso" element={<TerminosDeUsoPage />} />
           <Route path="/politica-cookies" element={<PoliticaCookiesPage />} />
