@@ -172,7 +172,7 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 | `src/hooks/useInvitarMiembro.ts` | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor. |
 
 Nuevos ítems pendientes:
-- Fase 8: any en TypeScript — múltiples instancias detectadas por linter, pasada dedicada pendiente antes de producción
+- Fase 8: any en TypeScript — SOLUCIONADO (reemplazados por unknown y tipado estricto)
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
 - Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
 - Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
@@ -805,7 +805,7 @@ const obligacionesIniciales = [
       useSuperAdmin.ts, OnboardingPHPage.tsx, NotFound.tsx
 - [x] Grep residuos src/: 0 coincidencias FondoApp/fondoapp/
       aporte_inicial/fondo familiar
-- [ ] any en TypeScript — pasada dedicada pendiente
+- [x] any en TypeScript — pasada dedicada completada (0 anys)
 - [ ] Dominio custom + variables de entorno en producción
 - [ ] Número WhatsApp real en WA_DEMO_HREF (3158966130)
       LandingPage.tsx + SuscripcionVencidaPage.tsx

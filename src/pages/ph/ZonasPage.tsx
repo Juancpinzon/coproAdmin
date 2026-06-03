@@ -71,7 +71,7 @@ export default function ZonasPage() {
         toast({ title: "Zona creada exitosamente" })
       }
       setOpenDialog(false)
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" })
     }
   }
@@ -79,7 +79,7 @@ export default function ZonasPage() {
   const handleToggle = async (id: string, activa: boolean) => {
     try {
       await toggleZona.mutateAsync({ id, activa })
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" })
     }
   }

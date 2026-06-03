@@ -91,7 +91,7 @@ function AppContent() {
   // Si no hay unidades configuradas, mandar al onboarding de PH.
   if (!tenant || tenant?.num_unidades === 0 || tenant?.num_unidades === null) {
     return (
-      <MiembroProvider value={{ miembro: miembro as any }}>
+      <MiembroProvider value={{ miembro: miembro as unknown }}>
         <OnboardingPHPage />
       </MiembroProvider>
     );

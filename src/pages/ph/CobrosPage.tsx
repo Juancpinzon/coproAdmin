@@ -120,7 +120,7 @@ export default function CobrosPage() {
       c.fecha_pago ?? '-'
     ])
     
-    ;(doc as any).autoTable({
+    ;(doc as unknown).autoTable({
       startY: 20,
       head: [['Unidad', 'Tipo', 'Monto', 'Estado', 'Fecha Pago']],
       body: tableData,
@@ -141,7 +141,7 @@ export default function CobrosPage() {
       })
       toast({ title: "Cuotas generadas exitosamente" })
       setOpenGenerateDialog(false)
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" })
     }
   }
@@ -156,7 +156,7 @@ export default function CobrosPage() {
       })
       toast({ title: "Pago registrado" })
       setOpenPagoDialog(false)
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" })
     }
   }
@@ -346,7 +346,7 @@ export default function CobrosPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Modo de cobro</Label>
-              <Select value={modo} onValueChange={(val: any) => setModo(val)}>
+              <Select value={modo} onValueChange={(val: string) => setModo(val)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

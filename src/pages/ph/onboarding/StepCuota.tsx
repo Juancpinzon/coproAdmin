@@ -2,7 +2,7 @@ import React from 'react';
 import { OnboardingDraft } from './types';
 import { StepHeader, Field, Card, Ico, formatCOP, formatCOPshort, onlyDigits } from './ui';
 
-export function StepCuota({ data, setData, errors, compact }: { data: OnboardingDraft, setData: any, errors: any, compact?: boolean }) {
+export function StepCuota({ data, setData, errors, compact }: { data: OnboardingDraft, setData: unknown, errors: unknown, compact?: boolean }) {
   const set = (v: string) => setData((d: OnboardingDraft) => ({ ...d, cuotaBase: v }));
   const base = data.cuotaBase;
   const monto = Number(base) || 0;

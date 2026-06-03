@@ -73,7 +73,7 @@ export default function PresupuestoPage() {
         toast({ title: "Item creado" });
       }
       setOpen(false);
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     }
   };
@@ -83,7 +83,7 @@ export default function PresupuestoPage() {
     try {
       await deleteItem.mutateAsync(id);
       toast({ title: "Item eliminado" });
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
     }
   };
@@ -190,7 +190,7 @@ export default function PresupuestoPage() {
             </div>
             <div className="space-y-2">
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(v: any) => setCategoria(v)}>
+              <Select value={categoria} onValueChange={(v: string) => setCategoria(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

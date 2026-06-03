@@ -81,7 +81,7 @@ export default function ReservasPage() {
       toast({ title: "Éxito", description: "Reserva creada correctamente" });
       setIsNewOpen(false);
       setNewReserva({ ...newReserva, zona_id: "", unidad_id: "" });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({ title: "Error", description: error.message || "Error al crear la reserva", variant: "destructive" });
     }
   };
@@ -94,7 +94,7 @@ export default function ReservasPage() {
       setIsCancelOpen(false);
       setReservaToCancel(null);
       setMotivoCancelacion("");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };

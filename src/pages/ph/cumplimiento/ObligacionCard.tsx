@@ -91,7 +91,7 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
         .getPublicUrl(path)
       await update.mutateAsync({ id: obligacion.id, documento_url: publicUrl })
       toast({ title: 'Documento subido exitosamente' })
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({ title: 'Error subiendo documento', description: err.message, variant: 'destructive' })
     } finally {
       setUploading(false)

@@ -78,7 +78,7 @@ export function useSuperAdmin() {
       ));
       
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // El error se retorna al llamador para mostrar toast
       return { success: false, error: error.message };
     }

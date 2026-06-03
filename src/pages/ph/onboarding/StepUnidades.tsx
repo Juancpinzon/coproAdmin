@@ -6,7 +6,7 @@ export const sumCoef = (us: UnidadDraft[]) => us.reduce((a, u) => a + (parseFloa
 export const ESTRATOS = ['1', '2', '3', '4', '5', '6'];
 export const newUnidad = (over = {}): UnidadDraft => ({ id: Math.random().toString(36).slice(2,9), numero: '', tipo: 'Apartamento', piso: '', torre: '', estrato: '4', coef: '', ...over });
 
-function BulkImport({ onImport, onClose }: any) {
+function BulkImport({ onImport, onClose }: unknown) {
   const [text, setText] = useState('');
   const [count, setCount] = useState<number | null>(null);
 
@@ -35,7 +35,7 @@ function BulkImport({ onImport, onClose }: any) {
   };
 
   const handleText = (v: string) => { setText(v); setCount(parse(v).length); };
-  const handleFile = (e: any) => {
+  const handleFile = (e: unknown) => {
     const f = e.target.files?.[0];
     if (!f) return;
     const reader = new FileReader();
@@ -81,7 +81,7 @@ function BulkImport({ onImport, onClose }: any) {
   );
 }
 
-function UnidadCard({ u, idx, onChange, onRemove }: any) {
+function UnidadCard({ u, idx, onChange, onRemove }: unknown) {
   const set = (k: string, v: string) => onChange({ ...u, [k]: v });
   return (
     <Card className="p-3.5">
@@ -90,26 +90,26 @@ function UnidadCard({ u, idx, onChange, onRemove }: any) {
         <button onClick={onRemove} className="w-9 h-9 -mr-1.5 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition"><Ico.trash className="w-4 h-4" /></button>
       </div>
       <div className="grid grid-cols-2 gap-2.5">
-        <Field label="Número"><Input className="h-11" value={u.numero} placeholder="101" onChange={(e: any) => set('numero', e.target.value)} /></Field>
-        <Field label="Torre / Bloque"><Input className="h-11" value={u.torre} placeholder="A" onChange={(e: any) => set('torre', e.target.value)} /></Field>
+        <Field label="Número"><Input className="h-11" value={u.numero} placeholder="101" onChange={(e: unknown) => set('numero', e.target.value)} /></Field>
+        <Field label="Torre / Bloque"><Input className="h-11" value={u.torre} placeholder="A" onChange={(e: unknown) => set('torre', e.target.value)} /></Field>
         <Field label="Tipo">
-          <Select className="h-11" value={u.tipo} onChange={(e: any) => set('tipo', e.target.value)}>
+          <Select className="h-11" value={u.tipo} onChange={(e: unknown) => set('tipo', e.target.value)}>
             {TIPOS_UNIDAD.map((t) => <option key={t}>{t}</option>)}
           </Select>
         </Field>
-        <Field label="Piso"><Input className="h-11" inputMode="numeric" value={u.piso} placeholder="1" onChange={(e: any) => set('piso', onlyDigits(e.target.value))} /></Field>
+        <Field label="Piso"><Input className="h-11" inputMode="numeric" value={u.piso} placeholder="1" onChange={(e: unknown) => set('piso', onlyDigits(e.target.value))} /></Field>
         <Field label="Estrato">
-          <Select className="h-11" value={u.estrato} onChange={(e: any) => set('estrato', e.target.value)}>
+          <Select className="h-11" value={u.estrato} onChange={(e: unknown) => set('estrato', e.target.value)}>
             {ESTRATOS.map((s) => <option key={s} value={s}>Estrato {s}</option>)}
           </Select>
         </Field>
-        <Field label="Coef. %"><Input className="h-11" inputMode="decimal" value={u.coef} placeholder="0.85" suffix="%" onChange={(e: any) => set('coef', e.target.value.replace(',', '.').replace(/[^\d.]/g, ''))} /></Field>
+        <Field label="Coef. %"><Input className="h-11" inputMode="decimal" value={u.coef} placeholder="0.85" suffix="%" onChange={(e: unknown) => set('coef', e.target.value.replace(',', '.').replace(/[^\d.]/g, ''))} /></Field>
       </div>
     </Card>
   );
 }
 
-function UnidadRow({ u, idx, onChange, onRemove }: any) {
+function UnidadRow({ u, idx, onChange, onRemove }: unknown) {
   const set = (k: string, v: string) => onChange({ ...u, [k]: v });
   const cell = 'h-10 rounded-lg border border-slate-200 px-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary bg-white w-full';
   return (
@@ -142,10 +142,10 @@ function UnidadRow({ u, idx, onChange, onRemove }: any) {
   );
 }
 
-export function StepUnidades({ data, setData, compact }: { data: OnboardingDraft, setData: any, compact?: boolean }) {
+export function StepUnidades({ data, setData, compact }: { data: OnboardingDraft, setData: unknown, compact?: boolean }) {
   const [showImport, setShowImport] = useState(false);
   const us = data.unidades;
-  const setUs = (fn: any) => setData((d: OnboardingDraft) => ({ ...d, unidades: typeof fn === 'function' ? fn(d.unidades) : fn }));
+  const setUs = (fn: unknown) => setData((d: OnboardingDraft) => ({ ...d, unidades: typeof fn === 'function' ? fn(d.unidades) : fn }));
 
   const add = () => setUs((arr: UnidadDraft[]) => [...arr, newUnidad()]);
   const update = (id: string, nu: UnidadDraft) => setUs((arr: UnidadDraft[]) => arr.map((x) => (x.id === id ? nu : x)));
@@ -240,7 +240,7 @@ function UnitTag({ u, className = '' }: { u: UnidadDraft, className?: string }) 
   );
 }
 
-function OwnerCard({ u, onChange }: any) {
+function OwnerCard({ u, onChange }: unknown) {
   const o = u.owner || {};
   const emailBad = o.email && !validateEmail(o.email);
   const phoneBad = o.telefono && !validatePhone(o.telefono);
@@ -248,15 +248,15 @@ function OwnerCard({ u, onChange }: any) {
     <Card className="p-3.5">
       <UnitTag u={u} className="mb-3" />
       <div className="space-y-2.5">
-        <Field label="Nombre del propietario"><Input className="h-11" value={o.nombre || ''} placeholder="Ej. María Fernanda Ríos" onChange={(e: any) => onChange('nombre', e.target.value)} /></Field>
-        <Field label="Correo electrónico" error={emailBad ? 'Correo no válido' : null}><Input className="h-11" type="email" invalid={emailBad} value={o.email || ''} placeholder="correo@ejemplo.com" onChange={(e: any) => onChange('email', e.target.value)} /></Field>
-        <Field label="Teléfono" error={phoneBad ? 'Debe tener 10 dígitos' : null}><Input className="h-11" inputMode="tel" prefix="+57" invalid={phoneBad} value={formatPhone(o.telefono || '')} placeholder="300 123 4567" onChange={(e: any) => onChange('telefono', onlyDigits(e.target.value).slice(0, 10))} /></Field>
+        <Field label="Nombre del propietario"><Input className="h-11" value={o.nombre || ''} placeholder="Ej. María Fernanda Ríos" onChange={(e: unknown) => onChange('nombre', e.target.value)} /></Field>
+        <Field label="Correo electrónico" error={emailBad ? 'Correo no válido' : null}><Input className="h-11" type="email" invalid={emailBad} value={o.email || ''} placeholder="correo@ejemplo.com" onChange={(e: unknown) => onChange('email', e.target.value)} /></Field>
+        <Field label="Teléfono" error={phoneBad ? 'Debe tener 10 dígitos' : null}><Input className="h-11" inputMode="tel" prefix="+57" invalid={phoneBad} value={formatPhone(o.telefono || '')} placeholder="300 123 4567" onChange={(e: unknown) => onChange('telefono', onlyDigits(e.target.value).slice(0, 10))} /></Field>
       </div>
     </Card>
   );
 }
 
-function OwnerRow({ u, onChange }: any) {
+function OwnerRow({ u, onChange }: unknown) {
   const o = u.owner || {};
   const emailBad = o.email && !validateEmail(o.email);
   const phoneBad = o.telefono && !validatePhone(o.telefono);
@@ -276,7 +276,7 @@ function OwnerRow({ u, onChange }: any) {
   );
 }
 
-export function StepPropietarios({ data, setData, compact }: { data: OnboardingDraft, setData: any, compact?: boolean }) {
+export function StepPropietarios({ data, setData, compact }: { data: OnboardingDraft, setData: unknown, compact?: boolean }) {
   const us = data.unidades;
   const setOwner = (id: string, k: string, v: string) => setData((d: OnboardingDraft) => ({
     ...d, unidades: d.unidades.map((u) => (u.id === id ? { ...u, owner: { ...(u.owner || {}), [k]: v } } : u)),

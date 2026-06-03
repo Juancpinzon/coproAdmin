@@ -80,7 +80,7 @@ const RegistroPage = () => {
 
       toast({ title: "Cuenta creada exitosamente" });
       window.location.href = "/";
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error al crear la cuenta",
         description: error.message || "Ocurrió un error inesperado",

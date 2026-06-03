@@ -28,9 +28,9 @@ import { Button } from '@/components/ui/button'
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-// TODO: reemplazar con número real antes de deploy
+// Número real de WhatsApp
 const WA_DEMO_HREF =
-  'https://wa.me/573000000000?text=Hola%2C%20quiero%20conocer%20CoproAdmin%20para%20mi%20conjunto'
+  'https://wa.me/573158966130?text=Hola%2C%20quiero%20conocer%20CoproAdmin%20para%20mi%20conjunto'
 
 // ─── NavBar ───────────────────────────────────────────────────────────────────
 

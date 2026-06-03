@@ -17,21 +17,21 @@ export default function PQRPage() {
   const [filtroEstado, setFiltroEstado] = useState<string>("todos")
   const [filtroTipo, setFiltroTipo] = useState<string>("todos")
   const [openDialog, setOpenDialog] = useState(false)
-  const [selectedPQR, setSelectedPQR] = useState<any>(null)
+  const [selectedPQR, setSelectedPQR] = useState<unknown>(null)
   
   const [estadoEdit, setEstadoEdit] = useState<"abierto" | "en_gestion" | "cerrado">("abierto")
   const [respuestaEdit, setRespuestaEdit] = useState("")
 
-  const filteredPQRs = pqrs.filter((p: any) => 
+  const filteredPQRs = pqrs.filter((p: unknown) => 
     (filtroEstado === "todos" || p.estado === filtroEstado) &&
     (filtroTipo === "todos" || p.tipo === filtroTipo)
   )
 
-  const abiertos = pqrs.filter((p: any) => p.estado === "abierto").length;
-  const enGestion = pqrs.filter((p: any) => p.estado === "en_gestion").length;
-  const cerrados = pqrs.filter((p: any) => p.estado === "cerrado").length;
+  const abiertos = pqrs.filter((p: unknown) => p.estado === "abierto").length;
+  const enGestion = pqrs.filter((p: unknown) => p.estado === "en_gestion").length;
+  const cerrados = pqrs.filter((p: unknown) => p.estado === "cerrado").length;
 
-  const handleOpenEdit = (pqr: any) => {
+  const handleOpenEdit = (pqr: unknown) => {
     setSelectedPQR(pqr)
     setEstadoEdit(pqr.estado)
     setRespuestaEdit(pqr.respuesta || "")
@@ -48,7 +48,7 @@ export default function PQRPage() {
       })
       toast({ title: "PQR actualizado exitosamente" })
       setOpenDialog(false)
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({ title: "Error", description: e.message, variant: "destructive" })
     }
   }
@@ -145,7 +145,7 @@ export default function PQRPage() {
                 <div className="space-y-4 pt-4 border-t">
                   <div className="space-y-2">
                     <Label>Estado de gestión</Label>
-                    <Select value={estadoEdit} onValueChange={(v: any) => setEstadoEdit(v)}>
+                    <Select value={estadoEdit} onValueChange={(v: string) => setEstadoEdit(v)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -182,7 +182,7 @@ export default function PQRPage() {
                             });
                             toast({ title: "PQR cerrado exitosamente" })
                             setOpenDialog(false)
-                          } catch (e: any) {
+                          } catch (e: unknown) {
                             toast({ title: "Error", description: e.message, variant: "destructive" })
                           }
                         }} 
