@@ -166,12 +166,13 @@ coproAdmin/
 
 La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 
-| Archivo | Problema | Acción |
-|---|---|---|
-| `supabase/migrations/003_features.sql` | Contiene stored procedures de amortización y aprobación de préstamos (fondos) | No borrar — afectaría el historial de BD. Ignorar al leer migraciones. |
-| `src/hooks/useInvitarMiembro.ts` | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor. |
+| Archivo                                | Problema                                                                                                            | Acción                                                                 |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `supabase/migrations/003_features.sql` | Contiene stored procedures de amortización y aprobación de préstamos (fondos)                                       | No borrar — afectaría el historial de BD. Ignorar al leer migraciones. |
+| `src/hooks/useInvitarMiembro.ts`       | Puede contener lógica de `aporte_inicial` (fondos). `InvitarMiembroModal` ya fue limpiado para no enviar ese campo. | Revisar y limpiar el hook en la próxima sesión de refactor.            |
 
 Nuevos ítems pendientes:
+
 - Fase 8: any en TypeScript — SOLUCIONADO (reemplazados por unknown y tipado estricto)
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
 - Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
@@ -699,7 +700,7 @@ const obligacionesIniciales = [
 - [x] Copy hero, statsbar, features y how-it-works revisado y coherente con CoproAdmin
 - [x] Sección "¿Para quién es CoproAdmin?" entre Features y HowItWorks
 - [x] **Criterio de éxito:** landing sin rastro de FondoApp, sin testimonios falsos, links legales funcionales, número de WhatsApp real
-      *Nota: Cerrada. Grep de verificación: 0 residuos de FondoApp.*
+      _Nota: Cerrada. Grep de verificación: 0 residuos de FondoApp._
 
 ### Fase 2 — Wizard de Onboarding ⏳ 95%
 
@@ -758,9 +759,9 @@ const obligacionesIniciales = [
 - [x] Sección ARCO en PortalResidentePage — 4 tipos, modal, toast "10 días hábiles"
 - [x] CumplimientoPage.tsx — /cumplimiento activa, sidebar actualizado
       Subcarpeta: src/pages/ph/cumplimiento/
-        ObligacionCard.tsx (165 líneas)
-        TablaConsentimientos.tsx (151 líneas)
-        TablaARCO.tsx (187 líneas)
+      ObligacionCard.tsx (165 líneas)
+      TablaConsentimientos.tsx (151 líneas)
+      TablaARCO.tsx (187 líneas)
       Capítulo 1: panel consentimientos + gestión ARCO para admin_ph
       Capítulo 2: 6 obligaciones Ley 675 — fechas editables, subida documentos a Storage, notas debounce 800ms, estado calculado en runtime
 - [x] Semáforo ComplianceSemaforo en DashboardPHPage — ordenado por urgencia, insertado después de KPIs
@@ -772,22 +773,22 @@ const obligacionesIniciales = [
 
 ### Fase 7 — Wompi (pagos online) ⏳ 60%
 
-- [x] src/types/wompi.ts — WompiTransaction, WompiWebhookPayload, 
+- [x] src/types/wompi.ts — WompiTransaction, WompiWebhookPayload,
       WompiCheckoutConfig
-- [x] src/hooks/useWompi.ts — initCheckout, isConfigured, 
+- [x] src/hooks/useWompi.ts — initCheckout, isConfigured,
       WOMPI_SCRIPT_URL
 - [x] src/lib/constants.ts — WOMPI_CURRENCY, WOMPI_MIN_AMOUNT_CENTS
-- [x] PortalResidentePage.tsx — ModalPagoWompi con estado 
+- [x] PortalResidentePage.tsx — ModalPagoWompi con estado
       deshabilitado hasta configurar credenciales
-- [x] supabase/functions/webhook-wompi/index.ts — verificación 
-      HMAC-SHA256, UPDATE cuota, INSERT movimiento_fondo, 
+- [x] supabase/functions/webhook-wompi/index.ts — verificación
+      HMAC-SHA256, UPDATE cuota, INSERT movimiento_fondo,
       idempotencia con guard eq('estado','pendiente')
 - [x] .env.local — VITE_WOMPI_PUBLIC_KEY comentado (pendiente sandbox)
       Corregido residuo: VITE_APP_NAME=CoproAdmin
 - [ ] Conectar widget real con credenciales sandbox
 - [ ] Deploy Edge Function webhook-wompi a Supabase
 - [ ] Prueba end-to-end: residente paga → cuota cambia a pagado
-- [ ] **Criterio de éxito:** residente paga online, estado cambia 
+- [ ] **Criterio de éxito:** residente paga online, estado cambia
       sin intervención del admin
 
 ### Fase 8 — Pulido y Deploy ⏳ 60%
@@ -863,6 +864,58 @@ VITE_SUPABASE_ANON_KEY=
 VITE_WOMPI_PUBLIC_KEY=
 RESEND_API_KEY=
 ```
+
+---
+
+🔄 Instrucción de Auto-actualización
+
+🔄 Cómo mantener este archivo actualizado
+Cuando el usuario diga cualquiera de estas frases:
+
+"Lee el git diff de los últimos commits y actualiza el archivo CLAUDE.md siguiendo las instrucciones de la sección 🔄 que está al final del archivo"
+"actualiza el CLAUDE.md con los cambios recientes"
+"sincroniza el CLAUDE.md con el git diff"
+"registra los cambios de esta sesión en el CLAUDE.md"
+
+Evitar frases cortas como "actualiza el md" — pueden ser interceptadas por el sistema de memoria automático de Claude Code.
+
+Ejecutar este flujo en orden:
+
+1. Leer el estado actual
+   bashcat CLAUDE.md
+   git log --oneline -10
+   git diff HEAD~1 --stat
+2. Leer el diff completo si hay cambios relevantes
+   bashgit diff HEAD~1
+3. Mapear cambios a secciones
+   Identificar qué secciones del CLAUDE.md se ven afectadas:
+
+Archivos nuevos en src/ → posible cambio en Estructura del Proyecto
+Archivos en supabase/migrations/ → actualizar Schema de Base de Datos
+Cambios en src/hooks/ o src/lib/ → posible cambio en Flujos o Reglas de Código
+Cambios en package.json → actualizar Stack Tecnológico
+Fases completadas → marcar [x] en Orden de Construcción
+
+4. Actualizar solo las secciones afectadas
+
+Marcar fases completadas con [x] o ✅
+Agregar tablas/campos nuevos al schema
+Registrar patrones nuevos en Reglas de Código
+NO reescribir secciones no afectadas
+NO cambiar los Principios Irrompibles sin confirmación
+
+5. Confirmar al usuario
+   CLAUDE.md actualizado. Cambios aplicados:
+
+- [sección]: [qué cambió]
+- [sección]: [qué cambió]
+  ⚠️ [inconsistencia si la hay]
+
+Nota para el agente: Si el diff es muy grande o cubre múltiples fases,
+pedir confirmación antes de hacer cambios estructurales al CLAUDE.md.
+
+NUNCA crear archivos de documentación separados.
+Todos los cambios van integrados en este CLAUDE.md, no en archivos externos.
 
 ---
 
