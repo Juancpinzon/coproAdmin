@@ -180,6 +180,13 @@ Nuevos ítems pendientes:
 - Fase 6: Storage bucket 'documentos-legales' — documento reemplazado genera path nuevo con timestamp, anterior queda huérfano. Limpiar en Fase 8.
 - Fase 6: Unidad en TablaConsentimientos muestra primera unidad si miembro tiene múltiples — aceptable MVP, revisar post-lanzamiento
 - Fase 7: VITE_APP_NAME tenía valor FondoApp en .env.local — corregido
+- Fase 8: residuos de identidad fuera de src/ — corregidos: `package.json` name era `fondoapp-ph` (→ `coproadmin`), `.env.example` tenía `VITE_APP_NAME=FondoApp` (→ `CoproAdmin`), `LoginPage.tsx` ícono mostraba `F` (→ `C`)
+- Auditoría seguridad pre-lanzamiento — 4 correcciones aplicadas:
+  - `.gitignore`: agregadas entradas `.env` y `.env.*`
+  - `ObligacionCard.tsx`: bucket `documentos-legales` ahora guarda path (no URL pública); usa `createSignedUrl` (15 min) para visualización
+  - `008_ph_tables_rls.sql`: RLS habilitado + políticas para unidades, zonas_comunes, reservas, pqr, presupuesto_ph, cuotas_administracion, pagos, storage documentos-legales
+  - `009_fix_super_admin.sql`: is_super_admin() ahora verifica por auth.uid() además del email
+- ⚠️ PENDIENTE (requiere Supabase Dashboard): cambiar bucket `documentos-legales` de público a privado — ver instrucciones al final del CLAUDE.md
 
 ---
 
@@ -806,6 +813,10 @@ const obligacionesIniciales = [
       useSuperAdmin.ts, OnboardingPHPage.tsx, NotFound.tsx
 - [x] Grep residuos src/: 0 coincidencias FondoApp/fondoapp/
       aporte_inicial/fondo familiar
+- [x] Residuos de identidad fuera de src/ corregidos:
+      package.json name → coproadmin
+      .env.example VITE_APP_NAME → CoproAdmin
+      LoginPage.tsx ícono → C (era F)
 - [x] any en TypeScript — pasada dedicada completada (0 anys)
 - [ ] Dominio custom + variables de entorno en producción
 - [ ] Número WhatsApp real en WA_DEMO_HREF (3158966130)

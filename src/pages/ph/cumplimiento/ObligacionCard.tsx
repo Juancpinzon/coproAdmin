@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { Loader2, Upload, ExternalLink } from 'lucide-react'
+import { Loader2, Upload, ExternalLink, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useTenant } from '@/hooks/useTenant'
 import {
@@ -51,9 +51,10 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
   const update = useUpdateObligacion()
   const { toast } = useToast()
 
-  const [localFecha, setLocalFecha] = useState(obligacion.fecha_vencimiento?.slice(0, 10) ?? '')
-  const [localNotas, setLocalNotas] = useState(obligacion.notas ?? '')
-  const [uploading, setUploading]   = useState(false)
+  const [localFecha, setLocalFecha]   = useState(obligacion.fecha_vencimiento?.slice(0, 10) ?? '')
+  const [localNotas, setLocalNotas]   = useState(obligacion.notas ?? '')
+  const [uploading, setUploading]     = useState(false)
+  const [viewLoading, setViewLoading] = useState(false)
   const notesTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const fileRef    = useRef<HTMLInputElement>(null)
 
@@ -80,22 +81,44 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
     if (!file || !tenant?.id) return
     setUploading(true)
     try {
-      const ext   = file.name.split('.').pop() ?? 'pdf'
-      const path  = `${tenant.id}/${obligacion.tipo}/${Date.now()}.${ext}`
+      const ext  = file.name.split('.').pop() ?? 'pdf'
+      const path = `${tenant.id}/${obligacion.tipo}/${Date.now()}.${ext}`
       const { error: uploadErr } = await supabase.storage
         .from('documentos-legales')
         .upload(path, file, { upsert: true })
       if (uploadErr) throw uploadErr
-      const { data: { publicUrl } } = supabase.storage
-        .from('documentos-legales')
-        .getPublicUrl(path)
-      await update.mutateAsync({ id: obligacion.id, documento_url: publicUrl })
+      // Guardar el path, no la URL pública — el bucket es privado
+      await update.mutateAsync({ id: obligacion.id, documento_url: path })
       toast({ title: 'Documento subido exitosamente' })
     } catch (err: unknown) {
-      toast({ title: 'Error subiendo documento', description: err.message, variant: 'destructive' })
+      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      toast({ title: 'Error subiendo documento', description: msg, variant: 'destructive' })
     } finally {
       setUploading(false)
       if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  async function handleVerDocumento() {
+    if (!obligacion.documento_url) return
+    setViewLoading(true)
+    try {
+      // Si es una URL completa legacy (antes de la migración a privado), abrir directo
+      if (obligacion.documento_url.startsWith('http')) {
+        window.open(obligacion.documento_url, '_blank', 'noreferrer')
+        return
+      }
+      // Generar URL firmada con 15 minutos de vida
+      const { data, error } = await supabase.storage
+        .from('documentos-legales')
+        .createSignedUrl(obligacion.documento_url, 900)
+      if (error || !data?.signedUrl) throw error ?? new Error('No se pudo generar la URL')
+      window.open(data.signedUrl, '_blank', 'noreferrer')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      toast({ title: 'Error abriendo documento', description: msg, variant: 'destructive' })
+    } finally {
+      setViewLoading(false)
     }
   }
 
@@ -144,11 +167,18 @@ export default function ObligacionCard({ obligacion, readonly }: Props) {
           <label className="text-xs font-medium text-muted-foreground">Documento</label>
           <div className="flex items-center gap-2 flex-wrap">
             {obligacion.documento_url ? (
-              <a href={obligacion.documento_url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[48px] px-2">
-                <ExternalLink className="h-4 w-4" />
+              <button
+                type="button"
+                onClick={handleVerDocumento}
+                disabled={viewLoading}
+                className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[48px] px-2 disabled:opacity-50"
+              >
+                {viewLoading
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <FileText className="h-4 w-4" />}
                 Ver documento
-              </a>
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </button>
             ) : (
               <span className="text-xs text-muted-foreground">Sin documento</span>
             )}

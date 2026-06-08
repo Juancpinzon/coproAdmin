@@ -4,7 +4,10 @@
       "Bash(npm run:*)",
       "Bash(node -e \"const df = require\\('date-fns'\\); console.log\\('setDate:', typeof df.setDate, 'addMonths:', typeof df.addMonths, 'format:', typeof df.format\\)\")",
       "Bash(node -e \"console.log\\(require\\('./node_modules/date-fns/package.json'\\).version\\)\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
