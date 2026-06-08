@@ -81,7 +81,7 @@ const LoginPage = () => {
       <Card className="w-full max-w-md shadow-lg border-0 shadow-primary/5">
         <CardHeader className="text-center space-y-3 pb-2">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
-            <span className="text-2xl font-bold text-primary-foreground">F</span>
+            <span className="text-2xl font-bold text-primary-foreground">C</span>
           </div>
           <CardTitle className="text-2xl font-bold text-primary">CoproAdmin</CardTitle>
           <CardDescription className="text-muted-foreground">
