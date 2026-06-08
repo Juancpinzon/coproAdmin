@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { useTenant } from "@/hooks/useTenant";
@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { formatCOP } from "@/lib/utils";
+import { useWompi, WOMPI_SCRIPT_URL } from "@/hooks/useWompi";
+import type { WompiTransaction } from "@/types/wompi";
 import {
   Tooltip,
   TooltipContent,
@@ -53,6 +55,20 @@ import {
   Loader2,
   CreditCard,
 } from "lucide-react";
+
+// Tipado para el widget de Wompi inyectado por el script externo
+declare global {
+  interface Window {
+    WidgetCheckout?: new (config: {
+      publicKey: string;
+      currency: string;
+      amountInCents: number;
+      reference: string;
+      redirectUrl?: string;
+      customerData?: { email: string };
+    }) => { open: (cb: (result: { transaction: WompiTransaction }) => void) => void };
+  }
+}
 
 // ─── Versión de política vigente ────────────────────────────────
 // Actualizar aquí cuando se publique una nueva política de privacidad.
@@ -76,28 +92,70 @@ interface CuotaResumen {
 
 interface ModalPagoWompiProps {
   cuota: CuotaResumen;
+  email?: string | null;
   onClose: () => void;
 }
 
-function ModalPagoWompi({ cuota, onClose }: ModalPagoWompiProps) {
+function ModalPagoWompi({ cuota, email, onClose }: ModalPagoWompiProps) {
+  const { toast } = useToast();
+  const { initCheckout } = useWompi();
+  const [scriptReady, setScriptReady] = useState(Boolean(window.WidgetCheckout));
+
   const periodoFormateado = format(
     new Date(cuota.periodo + "T12:00:00"),
     "MMMM yyyy",
   );
 
+  // Carga el script de Wompi una sola vez por sesión
+  useEffect(() => {
+    if (window.WidgetCheckout) return;
+    if (!WOMPI_HABILITADO) return;
+    const existing = document.querySelector(`script[src="${WOMPI_SCRIPT_URL}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => setScriptReady(true));
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = WOMPI_SCRIPT_URL;
+    script.onload = () => setScriptReady(true);
+    document.body.appendChild(script);
+  }, []);
+
+  const handlePagar = () => {
+    if (!window.WidgetCheckout || !scriptReady) return;
+    const config = initCheckout(cuota.id, cuota.monto);
+    const checkout = new window.WidgetCheckout({
+      ...config,
+      ...(email ? { customerData: { email } } : {}),
+    });
+    checkout.open((result) => {
+      const { status } = result.transaction;
+      if (status === "APPROVED") {
+        toast({
+          title: "Pago recibido",
+          description: "Tu cuota será actualizada en unos segundos.",
+        });
+        onClose();
+      } else if (status === "DECLINED") {
+        toast({
+          title: "Pago rechazado",
+          description: "Intenta de nuevo con otro método de pago.",
+          variant: "destructive",
+        });
+      }
+      // PENDING / ERROR: el webhook de Wompi actualizará la cuota al confirmar
+    });
+  };
+
   const botonPagar = (
     <Button
       id={`btn-ir-a-pagar-${cuota.id}`}
       className="w-full h-12 min-h-[48px] text-base"
-      disabled={!WOMPI_HABILITADO}
-      onClick={() => {
-        // TODO: Inicializar widget Wompi con VITE_WOMPI_PUBLIC_KEY
-        // referencia: cuota.id — se envía como reference al webhook
-        // monto: cuota.monto * 100 (Wompi usa centavos)
-      }}
+      disabled={!WOMPI_HABILITADO || !scriptReady}
+      onClick={handlePagar}
     >
       <CreditCard className="w-4 h-4 mr-2" />
-      Ir a pagar
+      {WOMPI_HABILITADO && !scriptReady ? "Cargando..." : "Ir a pagar"}
     </Button>
   );
 
@@ -584,6 +642,7 @@ export default function PortalResidentePage() {
           {cuotaParaPagar && (
             <ModalPagoWompi
               cuota={cuotaParaPagar}
+              email={miembro.email}
               onClose={() => setCuotaParaPagar(null)}
             />
           )}
