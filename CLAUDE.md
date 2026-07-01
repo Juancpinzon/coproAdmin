@@ -154,7 +154,15 @@ coproAdmin/
 │   │   ├── 003_features.sql
 │   │   ├── 004_comite_role.sql
 │   │   ├── 005_add_ph_roles.sql
-│   │   └── 006_super_admin.sql
+│   │   ├── 006_super_admin.sql
+│   │   ├── 007_cumplimiento_legal.sql
+│   │   ├── 008_ph_tables_rls.sql
+│   │   ├── 009_fix_super_admin.sql
+│   │   ├── 010_rpc_registrar_pago_cuota.sql        # Pago de cuota atómico (transacción + FOR UPDATE)
+│   │   ├── 011_harden_helper_search_path.sql       # search_path fijo en helpers RLS
+│   │   ├── 012_reconcile_pagos_movimientos_ph.sql  # Columnas PH en pagos + tipo 'ingreso'/'egreso'
+│   │   ├── 013_fix_miembros_rls_recursion.sql      # Fix recursión infinita en miembros_select
+│   │   └── 014_onboarding_rpc_close_self_insert.sql # RPC configurar_conjunto_ph + cierre self-insert
 │   └── functions/                     # Vacío — Edge Functions pendientes (Fase 3)
 ├── CLAUDE.md                          # Este archivo
 └── .env.local
@@ -175,7 +183,24 @@ Nuevos ítems pendientes:
 
 - Fase 8: any en TypeScript — SOLUCIONADO (reemplazados por unknown y tipado estricto)
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
-- Fase 2: rollback transaccional no verificado — inserciones secuenciales sin transacción atómica
+- Fase 3: pago de cuota — RESUELTO. Ahora es atómico vía RPC `registrar_pago_cuota`
+  (migración 010): SECURITY DEFINER con autorización explícita (rol admin_ph + estado activo
+  + aislamiento por tenant), `SELECT ... FOR UPDATE` sobre la cuota, guard de idempotencia y
+  un solo commit. El hook `useRegistrarPagoCuota` invoca el RPC (ya no orquesta 4 escrituras).
+- Fase 2: onboarding — RESUELTO el path de creación. Tenant + admin se crean vía RPC
+  `configurar_conjunto_ph` (migración 014, SECURITY DEFINER, idempotente: crea o actualiza).
+  RegistroPage usa el mismo RPC. Al terminar se invalidan queries y se navega al panel.
+  Pendiente: propietarios/unidades/zonas aún se insertan secuencialmente (no atómico con el RPC).
+- Seguridad RLS — deriva de schema reconciliada y helpers endurecidas:
+  - 011: `get_user_tenant_id()`/`get_user_rol()` con `search_path` fijo (anti hijack).
+  - 012: la BD viva tenía columnas PH en `pagos` y `tipo` 'ingreso'/'egreso' en
+    `movimientos_fondo` solo por ALTERs manuales; 012 los hace reproducibles.
+  - 013: `miembros_select` tenía una subconsulta inline sobre `miembros` → recursión infinita;
+    vuelve a usar la helper SECURITY DEFINER. `miembros_insert` endurecida (solo admin_ph del
+    tenant); el cliente ya no se auto-inserta (hueco de aislamiento cerrado).
+- ⚠️ Migraciones aplicadas a mano en el SQL Editor (no vía `db push`): el historial
+  `supabase_migrations` del remoto NO refleja 001–014. NO correr `db push` sin antes
+  `supabase migration repair`, o intentaría re-aplicar todo sobre la BD poblada.
 - Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
 - Fase 6: Storage bucket 'documentos-legales' — documento reemplazado genera path nuevo con timestamp, anterior queda huérfano. Limpiar en Fase 8.
 - Fase 6: Unidad en TablaConsentimientos muestra primera unidad si miembro tiene múltiples — aceptable MVP, revisar post-lanzamiento
@@ -453,6 +478,18 @@ USING (
 -- Replicar patrón en: cuotas_administracion, reservas, pqr, pagos
 ```
 
+> ⚠️ **Recursión RLS en `miembros`.** Las políticas SOBRE `miembros` NO deben consultar
+> `miembros` con una subconsulta inline (`SELECT ... FROM miembros ...`) — eso provoca
+> "infinite recursion detected in policy for relation miembros". Usar SIEMPRE las helpers
+> `SECURITY DEFINER` `get_user_tenant_id()`/`get_user_rol()` (bypass RLS, no se expanden en
+> el plan de la policy). Esto lo corrigió la migración 013 tras una edición manual que había
+> reintroducido la subconsulta. Las subconsultas inline SÍ son válidas en políticas sobre
+> OTRAS tablas (unidades, pagos, etc.), como en el ejemplo de arriba.
+>
+> **Creación de tenant/miembro (onboarding y registro):** va por el RPC `SECURITY DEFINER`
+> `configurar_conjunto_ph` (fija `rol='admin_ph'` y `user_id` server-side). `miembros_insert`
+> NO permite auto-inserción del cliente — solo un `admin_ph` agrega miembros de su tenant.
+
 ---
 
 ## 🔄 Flujos de Negocio Críticos
@@ -460,16 +497,18 @@ USING (
 ### Flujo 1: Onboarding de nuevo conjunto
 
 ```
-1. Admin se registra: nombre, email, contraseña
-2. Sistema crea tenant
+1. Admin se registra (RegistroPage): signUp + RPC configurar_conjunto_ph → crea tenant + admin_ph
+2. App detecta tenant con num_unidades=0 → OnboardingPHPage
 3. Wizard paso 1: nombre del conjunto, dirección, NIT (con dígito verificador DIAN)
 4. Wizard paso 2: cuota base mensual (formateo COP en vivo, proyección anual)
 5. Wizard paso 3: cargar unidades (tabla editable + CSV, coeficientes suman 100%)
 6. Wizard paso 4: configurar zonas comunes (presets disponibles)
-7. Resumen final → confirmar → seed automático → redirect a /dashboard
-8. Borrador en localStorage key 'ph_onboarding_draft'
-9. INSERT en orden: tenant → miembros → unidades → zonas_comunes
-   Rollback completo si falla cualquier INSERT
+7. Resumen final → confirmar → RPC configurar_conjunto_ph (idempotente: actualiza tenant)
+   → INSERT propietarios/unidades/zonas → seed obligaciones → invalida caché → navega a /
+8. Borrador en localStorage key 'ph_onboarding_draft' (guarda datos + paso actual)
+9. Creación de tenant+admin: atómica dentro del RPC (SECURITY DEFINER). El resto
+   (propietarios/unidades/zonas) son inserts secuenciales del cliente bajo RLS admin_ph.
+   Pendiente: hacerlos parte de la misma transacción (rollback completo).
 ```
 
 ### Flujo 2: Generación de cobro masivo mensual
@@ -491,10 +530,10 @@ USING (
 1. Admin busca unidad o propietario
 2. Selecciona cuota(s) pendiente(s)
 3. Registra: fecha, monto, medio de pago, sube comprobante (Storage)
-4. INSERT en pagos con referencia a cuota_admin_id
-5. UPDATE cuotas_administracion SET estado='pagado', fecha_pago, pago_id
-6. INSERT en movimientos_fondo tipo='ingreso'
-7. Mora se recalcula en runtime — no se guarda en BD
+4. RPC registrar_pago_cuota (migración 010) hace TODO en una transacción atómica:
+   FOR UPDATE sobre la cuota → INSERT pago → UPDATE cuota a 'pagado' → INSERT movimiento
+   'ingreso'. Autorización (admin_ph + tenant) e idempotencia validadas dentro del RPC.
+5. Mora se recalcula en runtime — no se guarda en BD
 ```
 
 ### Flujo 4: Reserva de zona común
@@ -709,17 +748,23 @@ const obligacionesIniciales = [
 - [x] **Criterio de éxito:** landing sin rastro de FondoApp, sin testimonios falsos, links legales funcionales, número de WhatsApp real
       _Nota: Cerrada. Grep de verificación: 0 residuos de FondoApp._
 
-### Fase 2 — Wizard de Onboarding ⏳ 95%
+### Fase 2 — Wizard de Onboarding ⏳ 97%
 
 - [x] Wizard 5 pasos completo (StepConjunto, StepCuota, StepUnidades, StepZonas, StepResumen)
 - [x] Validación NIT con cálculo de dígito verificador DIAN en StepConjunto
 - [x] Importar unidades desde Excel/CSV con parser inteligente
 - [x] Distribución automática de coeficientes
 - [x] Seed automático de zonas y miembros al finalizar
-- [x] Borrador en localStorage con recuperación automática
-- [x] Pantalla de éxito post-creación
-- [ ] Rollback transaccional completo — pendiente: inserciones secuenciales sin transacción atómica
-- [x] **Criterio de éxito:** desde cero hasta dashboard en menos de 20 minutos
+- [x] Borrador en localStorage con recuperación automática (incluye el paso actual `step`)
+- [x] No se reinicia al cambiar de pestaña (fix remonte: onAuthStateChange preserva ref de user,
+      value del provider memoizado, gate de carga solo en carga inicial)
+- [x] Tenant + admin creados vía RPC `configurar_conjunto_ph` (SECURITY DEFINER, idempotente),
+      no con inserts directos del cliente. `tipo` de unidad normalizado a minúscula.
+- [x] Al terminar: invalida caché de `tenant`/`current-miembro` y navega al panel
+      (antes la SuccessScreen era un limbo que se perdía al cambiar de pestaña)
+- [ ] Rollback transaccional completo — propietarios/unidades/zonas aún se insertan
+      secuencialmente tras el RPC (el RPC solo hace atómico tenant+admin)
+- [x] **Criterio de éxito:** desde cero hasta dashboard, verificado de punta a punta
 
 ### Fase 3 — Módulo de Cobros ⏳ 90%
 
@@ -727,7 +772,8 @@ const obligacionesIniciales = [
 - [x] Generación masiva con previsualización obligatoria (muestra total y conteo antes de confirmar)
 - [x] Dos modos: cuota fija o proporcional por coeficiente
 - [x] Registro manual de pago con fecha y URL de comprobante
-- [x] Pago registrado atómicamente: crea pago + actualiza cuota + agrega movimiento de fondo
+- [x] Pago registrado atómicamente vía RPC `registrar_pago_cuota` (migración 010): una sola
+      transacción con `FOR UPDATE` — crea pago + actualiza cuota + agrega movimiento; idempotente
 - [x] Exportación a Excel, PDF y CSV
 - [ ] Edge Function `generar-cuotas` — pendiente de mover a Edge Function (idempotencia)
 - [x] **Criterio de éxito:** generar cuotas, registrar pago, ver movimiento en fondo del conjunto
