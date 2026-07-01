@@ -263,7 +263,7 @@ export default function OnboardingPHPage() {
         <SuccessScreen 
           data={data} 
           onRestart={() => { setData(INITIAL_DRAFT); setStep(1); setFinished(false); }} 
-          onDashboard={() => navigate('/ph/dashboard')}
+          onDashboard={() => navigate('/')}
         />
       </div>
     );
