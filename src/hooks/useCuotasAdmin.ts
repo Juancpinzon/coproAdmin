@@ -73,49 +73,16 @@ export function useRegistrarPagoCuota() {
       fecha_pago: string
       comprobante_url?: string
     }) => {
-      // 1. Leer la cuota para obtener monto y tenant_id
-      const { data: cuota, error: ce } = await supabase
-        .from('cuotas_administracion')
-        .select('monto, tenant_id, unidad_id')
-        .eq('id', cuota_id)
-        .single()
-      if (ce) throw ce
-
-      // 2. Insertar en pagos
-      const { data: pago, error: pe } = await supabase
-        .from('pagos')
-        .insert({
-          tenant_id: cuota.tenant_id,
-          monto: cuota.monto,
-          fecha_pago,
-          cuota_admin_id: cuota_id,
-          unidad_id: cuota.unidad_id,
-          concepto: 'Cuota administración',
-          estado: 'pagado',
-        })
-        .select('id')
-        .single()
-      if (pe) throw pe
-
-      // 3. UPDATE cuota
-      const { error: ue } = await supabase
-        .from('cuotas_administracion')
-        .update({ estado: 'pagado', fecha_pago, pago_id: pago.id, comprobante_url: comprobante_url ?? null })
-        .eq('id', cuota_id)
-      if (ue) throw ue
-
-      // 4. Insertar movimiento en caja
-      const { error: me } = await supabase
-        .from('movimientos_fondo')
-        .insert({
-          tenant_id: cuota.tenant_id,
-          tipo: 'ingreso',
-          monto: cuota.monto,
-          descripcion: 'Pago cuota de administración',
-          categoria: 'administracion',
-          referencia_id: pago.id,
-        })
-      if (me) throw me
+      // Las 4 escrituras (insert pago → update cuota → insert movimiento,
+      // con bloqueo de la cuota) viven en una única transacción atómica
+      // del lado de Postgres. Ver migración 010_rpc_registrar_pago_cuota.sql.
+      const { data, error } = await supabase.rpc('registrar_pago_cuota', {
+        p_cuota_id: cuota_id,
+        p_fecha_pago: fecha_pago,
+        p_comprobante_url: comprobante_url ?? null,
+      })
+      if (error) throw error
+      return data as string // id del pago creado
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['cuotas_admin'] }),
   })
