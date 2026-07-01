@@ -142,52 +142,25 @@ export default function OnboardingPHPage() {
 
     setIsSaving(true);
     try {
-      // slug único (NOT NULL en tenants); el insert directo no lo genera por trigger.
-      const slug = data.conjunto.nombre
-        .toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .trim()
-        .replace(/\s+/g, '-')
-        + '-' + Math.random().toString(36).slice(2, 8);
-
       // 'tenants' no tiene columna 'ciudad': se pliega dentro de 'direccion'.
       const direccionCompleta = [data.conjunto.direccion, data.conjunto.ciudad]
         .map((s) => s?.trim())
         .filter(Boolean)
         .join(', ');
 
-      const { data: tenant, error: tenantError } = await supabase
-        .from('tenants')
-        .insert({
-          nombre: data.conjunto.nombre,
-          slug,
-          tenant_type: 'propiedad_horizontal',
-          nit: data.conjunto.nit,
-          direccion: direccionCompleta,
-          num_unidades: parseInt(data.conjunto.numUnidades) || 0,
-          cuota_mensual: Math.round(parseFloat(data.cuotaBase) || 0),
-        })
-        .select()
-        .single();
+      // Crear/actualizar tenant + admin de forma atómica y server-side.
+      // RPC SECURITY DEFINER: fija rol='admin_ph' y user_id server-side, y es
+      // idempotente (si el tenant ya existe desde el registro, lo actualiza).
+      // El cliente ya no se auto-inserta en miembros (aislamiento multi-tenant).
+      const { data: tenantId, error: rpcError } = await supabase.rpc('configurar_conjunto_ph', {
+        p_nombre: data.conjunto.nombre,
+        p_nit: data.conjunto.nit,
+        p_direccion: direccionCompleta,
+        p_num_unidades: parseInt(data.conjunto.numUnidades) || 0,
+        p_cuota_mensual: Math.round(parseFloat(data.cuotaBase) || 0),
+      });
 
-      if (tenantError) throw tenantError;
-
-      // Unirse como administrador
-      const { error: adminError } = await supabase
-        .from('miembros')
-        .insert({
-          tenant_id: tenant.id,
-          user_id: user.id,
-          nombre_completo: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
-          email: user.email,
-          rol: 'admin_ph'
-        });
-
-      if (adminError) {
-        await supabase.from('tenants').delete().eq('id', tenant.id);
-        throw adminError;
-      }
+      if (rpcError) throw rpcError;
 
       // Preparar propietarios únicos
       const dueños: unknown = {};
@@ -202,7 +175,7 @@ export default function OnboardingPHPage() {
         const { data: m, error } = await supabase
           .from('miembros')
           .insert({
-            tenant_id: tenant.id,
+            tenant_id: tenantId,
             nombre_completo: d.nombre,
             email: d.email || null,
             telefono: d.telefono || null,
@@ -225,7 +198,7 @@ export default function OnboardingPHPage() {
         const dId = dKey ? dueños[dKey]?.db_id : null;
 
         return {
-          tenant_id: tenant.id,
+          tenant_id: tenantId,
           numero: u.numero,
           torre: u.torre || null,
           tipo: u.tipo,
@@ -242,7 +215,7 @@ export default function OnboardingPHPage() {
 
       // Crear zonas
       const dbZonas = data.zonas.map(z => ({
-        tenant_id: tenant.id,
+        tenant_id: tenantId,
         nombre: z.nombre,
         capacidad_max: parseInt(z.capacidad) || null,
         horario_apertura: z.apertura + ':00',
@@ -257,7 +230,7 @@ export default function OnboardingPHPage() {
       // Seed obligaciones legales iniciales (Fase 6 — Ley 675 de 2001)
       // No-throw: el tenant ya existe; el seed es idempotente (ON CONFLICT DO NOTHING).
       const { error: seedError } = await supabase.rpc('seed_obligaciones_iniciales', {
-        p_tenant_id: tenant.id,
+        p_tenant_id: tenantId,
       });
       if (seedError) {
         // No abortar el onboarding por esto — el admin puede reintentarlo desde Cumplimiento

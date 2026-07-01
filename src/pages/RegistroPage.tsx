@@ -46,37 +46,14 @@ const RegistroPage = () => {
       const user = authData.user;
       if (!user) throw new Error("No se pudo crear el usuario");
 
-      const slug =
-        nombre.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") +
-        "-" +
-        Math.random().toString(36).slice(2, 8);
-
-      const { data: tenantData, error: tenantError } = await supabase
-        .from("tenants")
-        .insert({
-          nombre,
-          tenant_type: "propiedad_horizontal",
-          slug,
-          num_unidades: 0,
-          trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          suscripcion_activa: true,
-          plan: "trial",
-        })
-        .select()
-        .single();
-
-      if (tenantError) throw tenantError;
-
-      const { error: miembroError } = await supabase.from("miembros").insert({
-        tenant_id: tenantData.id,
-        user_id: user.id,
-        nombre_completo: nombre,
-        email,
-        rol: "admin_ph",
-        estado: "activo",
+      // tenant + admin se crean server-side vía RPC SECURITY DEFINER: fija
+      // rol='admin_ph' y user_id, sin auto-insertar desde el cliente en
+      // miembros. Idempotente: el onboarding luego completa los datos.
+      const { error: rpcError } = await supabase.rpc("configurar_conjunto_ph", {
+        p_nombre: nombre,
       });
 
-      if (miembroError) throw miembroError;
+      if (rpcError) throw rpcError;
 
       toast({ title: "Cuenta creada exitosamente" });
       window.location.href = "/";
