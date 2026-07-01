@@ -201,7 +201,9 @@ export default function OnboardingPHPage() {
           tenant_id: tenantId,
           numero: u.numero,
           torre: u.torre || null,
-          tipo: u.tipo,
+          // El wizard muestra etiquetas capitalizadas ('Apartamento'); la BD
+          // espera el enum en minúscula (unidades_tipo_check).
+          tipo: (u.tipo || 'Apartamento').toLowerCase(),
           piso: parseInt(u.piso) || null,
           coeficiente: parseFloat(u.coef) || 0,
           miembro_id: dId || null,
