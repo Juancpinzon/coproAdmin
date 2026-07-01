@@ -142,15 +142,31 @@ export default function OnboardingPHPage() {
 
     setIsSaving(true);
     try {
+      // slug único (NOT NULL en tenants); el insert directo no lo genera por trigger.
+      const slug = data.conjunto.nombre
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        + '-' + Math.random().toString(36).slice(2, 8);
+
+      // 'tenants' no tiene columna 'ciudad': se pliega dentro de 'direccion'.
+      const direccionCompleta = [data.conjunto.direccion, data.conjunto.ciudad]
+        .map((s) => s?.trim())
+        .filter(Boolean)
+        .join(', ');
+
       const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
         .insert({
-          name: data.conjunto.nombre,
+          nombre: data.conjunto.nombre,
+          slug,
           tenant_type: 'propiedad_horizontal',
           nit: data.conjunto.nit,
-          direccion: data.conjunto.direccion,
-          ciudad: data.conjunto.ciudad,
+          direccion: direccionCompleta,
           num_unidades: parseInt(data.conjunto.numUnidades) || 0,
+          cuota_mensual: Math.round(parseFloat(data.cuotaBase) || 0),
         })
         .select()
         .single();
@@ -163,7 +179,7 @@ export default function OnboardingPHPage() {
         .insert({
           tenant_id: tenant.id,
           user_id: user.id,
-          nombre: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
+          nombre_completo: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin',
           email: user.email,
           rol: 'admin_ph'
         });
@@ -187,7 +203,7 @@ export default function OnboardingPHPage() {
           .from('miembros')
           .insert({
             tenant_id: tenant.id,
-            nombre: d.nombre,
+            nombre_completo: d.nombre,
             email: d.email || null,
             telefono: d.telefono || null,
             rol: 'propietario'
@@ -199,36 +215,23 @@ export default function OnboardingPHPage() {
       });
       await Promise.all(promisesMiembros);
 
-      // Crear cuota base
-      const { data: cuota, error: cuotaError } = await supabase
-        .from('cuotas_administracion')
-        .insert({
-          tenant_id: tenant.id,
-          nombre: 'Cuota base de administración',
-          monto_base: parseFloat(data.cuotaBase) || 0,
-          periodo: new Date().toISOString().substring(0, 7),
-          activa: true,
-        })
-        .select()
-        .single();
-      
-      if (cuotaError) throw cuotaError;
+      // La cuota base mensual vive en tenants.cuota_mensual (guardada en el insert del tenant).
+      // Las cuotas por unidad NO se generan aquí: son un cobro masivo con previsualización
+      // obligatoria desde Cobros (Principio 5 / Flujo 2). No tocar cuotas_administracion en onboarding.
 
       // Crear unidades
       const dbUnidades = data.unidades.map(u => {
         const dKey = u.owner?.email?.toLowerCase().trim() || u.owner?.nombre?.trim();
         const dId = dKey ? dueños[dKey]?.db_id : null;
-        
+
         return {
           tenant_id: tenant.id,
           numero: u.numero,
-          torre_bloque: u.torre || null,
+          torre: u.torre || null,
           tipo: u.tipo,
           piso: parseInt(u.piso) || null,
-          estrato: parseInt(u.estrato) || null,
-          coeficiente_copropiedad: parseFloat(u.coef) || 0,
-          propietario_id: dId || null,
-          cuota_admin_id: cuota.id
+          coeficiente: parseFloat(u.coef) || 0,
+          miembro_id: dId || null,
         };
       });
 
@@ -241,9 +244,9 @@ export default function OnboardingPHPage() {
       const dbZonas = data.zonas.map(z => ({
         tenant_id: tenant.id,
         nombre: z.nombre,
-        capacidad: parseInt(z.capacidad) || null,
-        hora_apertura: z.apertura + ':00',
-        hora_cierre: z.cierre + ':00'
+        capacidad_max: parseInt(z.capacidad) || null,
+        horario_apertura: z.apertura + ':00',
+        horario_cierre: z.cierre + ':00'
       }));
 
       if (dbZonas.length > 0) {
