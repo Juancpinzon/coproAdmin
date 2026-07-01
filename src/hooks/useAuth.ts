@@ -13,7 +13,10 @@ export function useAuth() {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      const next = session?.user ?? null
+      // Ignora TOKEN_REFRESHED / SIGNED_IN que devuelven el mismo usuario:
+      // preservar la misma referencia evita re-renders y remontes espurios al recuperar foco.
+      setUser((prev) => (prev?.id === next?.id ? prev : next))
     })
 
     return () => subscription.unsubscribe()

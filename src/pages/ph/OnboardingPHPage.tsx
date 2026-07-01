@@ -95,15 +95,21 @@ export default function OnboardingPHPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setData(parsed);
+        // Compat: el formato antiguo guardaba solo el draft, sin envoltura.
+        if (parsed && typeof parsed === "object" && "data" in parsed) {
+          setData(parsed.data);
+          if (typeof parsed.step === "number") setStep(parsed.step);
+        } else {
+          setData(parsed);
+        }
       } catch (e) { }
     }
   }, []);
 
   // Guardar borrador al cambiar
   useEffect(() => {
-    localStorage.setItem("ph_onboarding_draft", JSON.stringify(data));
-  }, [data]);
+    localStorage.setItem("ph_onboarding_draft", JSON.stringify({ data, step }));
+  }, [data, step]);
 
   // Scroll al top al cambiar de paso
   useEffect(() => {

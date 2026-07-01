@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -44,7 +45,16 @@ function AppContent() {
   const { data: tenant, isLoading: tenantLoading } = useTenant();
   const location = useLocation();
 
-  if (loading || miembroLoading || tenantLoading) {
+  const onboardingMiembroValue = useMemo(() => ({ miembro: miembro as unknown }), [miembro]);
+
+  // Solo mostrar el gate global en la carga inicial (sin datos aún).
+  // Un refetch o evento de auth en segundo plano deja isLoading en false y
+  // conserva el estado conocido, por lo que NO colapsa el árbol ya montado
+  // ni cae a la rama no-autenticada de forma transitoria.
+  const cargaInicial =
+    loading || (!!user && ((miembroLoading && !miembro) || (tenantLoading && !tenant)));
+
+  if (cargaInicial) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground text-sm">Cargando…</div>
@@ -91,7 +101,7 @@ function AppContent() {
   // Si no hay unidades configuradas, mandar al onboarding de PH.
   if (!tenant || tenant?.num_unidades === 0 || tenant?.num_unidades === null) {
     return (
-      <MiembroProvider value={{ miembro: miembro as unknown }}>
+      <MiembroProvider value={onboardingMiembroValue}>
         <OnboardingPHPage />
       </MiembroProvider>
     );
