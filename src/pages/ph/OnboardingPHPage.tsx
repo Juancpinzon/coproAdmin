@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { OnboardingDraft } from "./onboarding/types";
@@ -81,6 +82,7 @@ function StepperDesktop({ step, onJump }: unknown) {
 export default function OnboardingPHPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   
   const [data, setData] = useState<OnboardingDraft>(INITIAL_DRAFT);
   const [step, setStep] = useState(1);
@@ -240,8 +242,14 @@ export default function OnboardingPHPage() {
       }
 
       localStorage.removeItem("ph_onboarding_draft");
-      setFinished(true);
       toast.success("Conjunto configurado exitosamente");
+      // Refrescar el estado global: el tenant ya tiene num_unidades > 0 y el
+      // miembro admin existe, así que App debe salir del modo onboarding.
+      // Sin esto la caché de React Query queda obsoleta y App re-renderiza el
+      // wizard (limbo que se pierde al cambiar de pestaña).
+      await qc.invalidateQueries({ queryKey: ["current-miembro"] });
+      await qc.invalidateQueries({ queryKey: ["tenant"] });
+      navigate("/");
     } catch (error: unknown) {
       toast.error(error.message || "Error al crear el conjunto");
     } finally {
