@@ -68,7 +68,11 @@ export function useCreateReserva() {
         .or(`and(hora_inicio.lt.${reserva.hora_fin},hora_fin.gt.${reserva.hora_inicio})`);
         
       if (fetchError) throw fetchError;
-      
+
+      // Pre-chequeo para UX (mensaje inmediato en el caso común). NO es la
+      // garantía real: entre este SELECT y el INSERT hay una ventana de
+      // carrera (TOCTOU). La garantía la da la constraint EXCLUDE
+      // `reservas_sin_solape` (migración 017), que serializa a nivel de BD.
       if (conflictos && conflictos.length > 0) {
         throw new Error("El horario seleccionado no está disponible en esta zona común.");
       }
@@ -79,7 +83,15 @@ export function useCreateReserva() {
       };
 
       const { error } = await supabase.from("reservas").insert(newReserva);
-      if (error) throw error;
+      if (error) {
+        // 23P01 = exclusion_violation: dos reservas simultáneas ganaron la
+        // carrera y la constraint EXCLUDE rechazó la segunda. Traducir a un
+        // mensaje de negocio en vez de exponer el error crudo de Postgres.
+        if (error.code === "23P01") {
+          throw new Error("El horario seleccionado no está disponible en esta zona común.");
+        }
+        throw error;
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["reservas"] }),
   });
