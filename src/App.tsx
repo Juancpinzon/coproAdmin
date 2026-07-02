@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,27 +8,31 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrentMiembro } from "@/hooks/useCurrentMiembro";
 import { useTenant } from "@/hooks/useTenant";
 import { MiembroProvider } from "@/contexts/MiembroContext";
-import LoginPage from "./pages/LoginPage";
-import LandingPage from "./pages/LandingPage";
-import RegistroPage from "./pages/RegistroPage";
 import AppLayout from "./components/AppLayout";
-import NotFound from "./pages/NotFound";
-import DashboardPHPage from "./pages/ph/DashboardPHPage";
-import UnidadesPage from "./pages/ph/UnidadesPage";
-import CobrosPage from "./pages/ph/CobrosPage";
-import PQRPage from "./pages/ph/PQRPage";
-import OnboardingPHPage from "./pages/ph/OnboardingPHPage";
-import ZonasPage from "./pages/ph/ZonasPage";
-import ReservasPage from "./pages/ph/ReservasPage";
-import PortalResidentePage from "./pages/ph/PortalResidentePage";
-import PresupuestoPage from "./pages/ph/PresupuestoPage";
-import AyudaPage from "./pages/ph/AyudaPage";
-import CumplimientoPage from "./pages/ph/CumplimientoPage";
-import SuscripcionVencidaPage from "./pages/SuscripcionVencidaPage";
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
-import PoliticaPrivacidadPage from "./pages/PoliticaPrivacidadPage";
-import TerminosDeUsoPage from "./pages/TerminosDeUsoPage";
-import PoliticaCookiesPage from "./pages/PoliticaCookiesPage";
+
+// Páginas cargadas de forma diferida (code-splitting por ruta): cada una queda
+// en su propio chunk junto con las librerías pesadas que arrastra (xlsx, jspdf,
+// recharts, framer-motion), fuera del bundle inicial.
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const RegistroPage = lazy(() => import("./pages/RegistroPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const DashboardPHPage = lazy(() => import("./pages/ph/DashboardPHPage"));
+const UnidadesPage = lazy(() => import("./pages/ph/UnidadesPage"));
+const CobrosPage = lazy(() => import("./pages/ph/CobrosPage"));
+const PQRPage = lazy(() => import("./pages/ph/PQRPage"));
+const OnboardingPHPage = lazy(() => import("./pages/ph/OnboardingPHPage"));
+const ZonasPage = lazy(() => import("./pages/ph/ZonasPage"));
+const ReservasPage = lazy(() => import("./pages/ph/ReservasPage"));
+const PortalResidentePage = lazy(() => import("./pages/ph/PortalResidentePage"));
+const PresupuestoPage = lazy(() => import("./pages/ph/PresupuestoPage"));
+const AyudaPage = lazy(() => import("./pages/ph/AyudaPage"));
+const CumplimientoPage = lazy(() => import("./pages/ph/CumplimientoPage"));
+const SuscripcionVencidaPage = lazy(() => import("./pages/SuscripcionVencidaPage"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const PoliticaPrivacidadPage = lazy(() => import("./pages/PoliticaPrivacidadPage"));
+const TerminosDeUsoPage = lazy(() => import("./pages/TerminosDeUsoPage"));
+const PoliticaCookiesPage = lazy(() => import("./pages/PoliticaCookiesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,7 +152,15 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppContent />
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+              <div className="text-muted-foreground text-sm">Cargando…</div>
+            </div>
+          }
+        >
+          <AppContent />
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
