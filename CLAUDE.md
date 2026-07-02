@@ -183,10 +183,18 @@ Nuevos ítems pendientes:
 
 - Fase 8: any en TypeScript — SOLUCIONADO (reemplazados por unknown y tipado estricto)
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
-- Fase 3: pago de cuota — RESUELTO. Ahora es atómico vía RPC `registrar_pago_cuota`
-  (migración 010): SECURITY DEFINER con autorización explícita (rol admin_ph + estado activo
-  + aislamiento por tenant), `SELECT ... FOR UPDATE` sobre la cuota, guard de idempotencia y
-  un solo commit. El hook `useRegistrarPagoCuota` invoca el RPC (ya no orquesta 4 escrituras).
+- Fase 3: pago de cuota — RESUELTO y VERIFICADO EN VIVO (jul 2026). Es atómico vía RPC
+  `registrar_pago_cuota` (migración 010): SECURITY DEFINER con autorización explícita (rol
+  admin_ph + estado activo + aislamiento por tenant), `SELECT ... FOR UPDATE` sobre la cuota,
+  guard de idempotencia y un solo commit. El hook `useRegistrarPagoCuota` invoca el RPC (ya no
+  orquesta 4 escrituras). Prueba end-to-end en la app (localhost): generar cuota (con
+  previsualización) → registrar pago → `POST /rpc/registrar_pago_cuota → 200`; la cuota pasa a
+  `pagado` y se crea el `movimientos_fondo` tipo `ingreso` apuntando al pago (`referencia_id`).
+  Confirmado que la transacción escribe las 3 filas juntas.
+- ⚠️ BUG MENOR migración 010: el `INSERT INTO movimientos_fondo` deja `fecha = null` (no
+  propaga `p_fecha_pago`). La cuota y el pago sí quedan con fecha. Impacto: reportes que
+  agrupan ingresos por `fecha` (p.ej. "Recaudo últimos 6 meses") se saltan el movimiento.
+  Fix de una línea: pasar `p_fecha_pago` al INSERT del movimiento. PENDIENTE.
 - Fase 2: onboarding — RESUELTO el path de creación. Tenant + admin se crean vía RPC
   `configurar_conjunto_ph` (migración 014, SECURITY DEFINER, idempotente: crea o actualiza).
   RegistroPage usa el mismo RPC. Al terminar se invalidan queries y se navega al panel.
@@ -773,7 +781,9 @@ const obligacionesIniciales = [
 - [x] Dos modos: cuota fija o proporcional por coeficiente
 - [x] Registro manual de pago con fecha y URL de comprobante
 - [x] Pago registrado atómicamente vía RPC `registrar_pago_cuota` (migración 010): una sola
-      transacción con `FOR UPDATE` — crea pago + actualiza cuota + agrega movimiento; idempotente
+      transacción con `FOR UPDATE` — crea pago + actualiza cuota + agrega movimiento; idempotente.
+      Verificado end-to-end en la app (jul 2026): RPC → 200, cuota `pagado`, movimiento `ingreso`.
+      Bug menor abierto: el movimiento queda con `fecha = null` (ver Deuda Técnica)
 - [x] Exportación a Excel, PDF y CSV
 - [ ] Edge Function `generar-cuotas` — pendiente de mover a Edge Function (idempotencia)
 - [x] **Criterio de éxito:** generar cuotas, registrar pago, ver movimiento en fondo del conjunto

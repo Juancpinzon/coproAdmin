@@ -7,7 +7,17 @@
       "Bash(npx tsc:*)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(ls \"C:\\\\Users\\\\JUAN CARLOS PINZON Z\\\\.claude\\\\skills\\\\cimientos-solidos\\\\scripts\\\\\")",
+      "Bash(bash '/c/Users/JUAN CARLOS PINZON Z/.claude/skills/cimientos-solidos/scripts/audit-cimientos.sh' '/d/OneDrive/Desktop/_Archivos/Apps/PH')",
+      "Bash(cd '/d/OneDrive/Desktop/_Archivos/Apps/PH/supabase/migrations' && grep -rniE 'create table.*\\(cuotas_administracion|pagos|movimientos_fondo\\)|alter table.*\\(pagos|movimientos_fondo|cuotas_administracion\\)' . | head -40)",
+      "Bash(cd '/d/OneDrive/Desktop/_Archivos/Apps/PH' && grep -nE 'cuotas_administracion:|pagos:|movimientos_fondo:|Row:|Insert:' src/types/database.ts | head -60)",
+      "mcp__33433c2f-6c81-480e-9803-8d7574938b11__execute_sql",
+      "mcp__33433c2f-6c81-480e-9803-8d7574938b11__list_tables",
+      "Bash(git commit -m ' *)",
+      "Bash(sed -n '/CREATE TABLE IF NOT EXISTS pagos/,/\\);/p' supabase/migrations/001_initial_schema.sql)",
+      "Bash(sed -n '/CREATE TABLE IF NOT EXISTS movimientos_fondo/,/\\);/p' supabase/migrations/001_initial_schema.sql)",
+      "Bash(npx supabase *)"
     ]
   }
 }
