@@ -12,9 +12,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+// xlsx y jspdf se cargan de forma diferida dentro de los handlers de
+// exportación (import dinámico) para no incluirlos en el chunk de Cobros.
 import { format, addMonths } from "date-fns"
 import { es } from "date-fns/locale"
 
@@ -94,7 +93,8 @@ export default function CobrosPage() {
     URL.revokeObjectURL(url)
   }
 
-  function exportarExcel(cuotas: CuotaAdmin[], periodo: string) {
+  async function exportarExcel(cuotas: CuotaAdmin[], periodo: string) {
+    const XLSX = await import('xlsx')
     const data = cuotas.map(c => ({
       Unidad: c.unidades?.numero ?? '',
       Tipo: c.unidades?.tipo ?? '',
@@ -108,7 +108,9 @@ export default function CobrosPage() {
     XLSX.writeFile(workbook, `cobros-${periodo}.xlsx`)
   }
 
-  function exportarPDF(cuotas: CuotaAdmin[], periodo: string) {
+  async function exportarPDF(cuotas: CuotaAdmin[], periodo: string) {
+    const { default: jsPDF } = await import('jspdf')
+    await import('jspdf-autotable')
     const doc = new jsPDF()
     doc.text(`Reporte de Cobros - ${periodo}`, 14, 15)
     
