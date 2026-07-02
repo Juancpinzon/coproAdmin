@@ -1,6 +1,7 @@
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "buildCommand": "bun run build",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "outputDirectory": "dist",
   "framework": "vite",
   "headers": [

@@ -29,6 +29,10 @@ dist-ssr
 *.sw?
 .vercel
 
+# Gestor de paquetes: el proyecto usa npm (package-lock.json). No versionar bun.
+bun.lock
+bun.lockb
+
 # Artefactos locales de desarrollo (no versionar)
 check_db.ts
 check_tenants.ts
