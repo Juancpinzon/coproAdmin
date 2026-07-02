@@ -58,9 +58,14 @@ const RegistroPage = () => {
       toast({ title: "Cuenta creada exitosamente" });
       window.location.href = "/";
     } catch (error: unknown) {
+      const raw = (error instanceof Error ? error.message : "").toLowerCase();
+      const description =
+        raw.includes("already registered") || raw.includes("already been registered") || raw.includes("user already")
+          ? "Ese correo ya tiene una cuenta. Intenta iniciar sesión."
+          : "No se pudo crear la cuenta. Verifica los datos e intenta de nuevo.";
       toast({
         title: "Error al crear la cuenta",
-        description: error.message || "Ocurrió un error inesperado",
+        description,
         variant: "destructive",
       });
     } finally {

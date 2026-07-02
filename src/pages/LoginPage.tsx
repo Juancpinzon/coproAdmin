@@ -34,8 +34,8 @@ const LoginPage = () => {
       toast({ title: "Las contraseñas no coinciden", variant: "destructive" });
       return;
     }
-    if (password.length < 6) {
-      toast({ title: "La contraseña debe tener mínimo 6 caracteres", variant: "destructive" });
+    if (mode === "register" && password.length < 8) {
+      toast({ title: "La contraseña debe tener mínimo 8 caracteres", variant: "destructive" });
       return;
     }
 
@@ -58,9 +58,13 @@ const LoginPage = () => {
       const { error: signUpError } = await signUp(email, password);
       if (signUpError) {
         setLoading(false);
+        const raw = signUpError.message?.toLowerCase() ?? "";
+        const description = raw.includes("already registered") || raw.includes("already been registered") || raw.includes("user already")
+          ? "Ese correo ya tiene una cuenta. Intenta iniciar sesión."
+          : "No se pudo crear la cuenta. Verifica los datos e intenta de nuevo.";
         toast({
           title:       "Error al crear la cuenta",
-          description: signUpError.message,
+          description,
           variant:     "destructive",
         });
         return;
