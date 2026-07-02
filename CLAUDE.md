@@ -919,14 +919,45 @@ const obligacionesIniciales = [
 
 ```bash
 npm install
-npm run dev                    # localhost:5173
+npm run dev                    # localhost:8080 (puerto fijado en vite.config)
 npm run build
 npm run lint
 
-# Tras cada migración:
+# Regenerar tipos tras cada cambio de schema:
 npx supabase gen types typescript --project-id lavdttjhrnozboosgeub > src/types/database.ts
-npx supabase db push
 ```
+
+> ⚠️ **NO correr `supabase db push` con el flujo actual.** Las migraciones se aplican a mano
+> en el SQL Editor y los archivos 001–014 pueden no reproducir fielmente la BD viva (varios se
+> editaron después de aplicarse). Un `db push` podría generar un diff destructivo. El ledger
+> `supabase_migrations.schema_migrations` ya está sembrado (001–014 como aplicadas), así que
+> hoy el push sería no-op, pero no es el flujo soportado hasta hacer la adopción de abajo.
+
+### Flujo actual de migraciones (manual, soportado)
+
+1. Escribir `0NN_nombre.sql` en `supabase/migrations/`.
+2. Pegar y ejecutar el SQL en el **SQL Editor** de Supabase.
+3. Registrar la versión en el ledger para no desalinear el historial:
+   ```sql
+   insert into supabase_migrations.schema_migrations (version, name)
+   values ('0NN','nombre') on conflict (version) do nothing;
+   ```
+4. Regenerar tipos (comando de arriba) y commitear archivo + tipos.
+
+### Adopción del CLI (hacer antes de escalar/vender — baseline seguro)
+
+Migrar a "migraciones como código" (reproducibilidad, staging, review en PR). Ya está listo
+`supabase/config.toml`. El paso clave es NO empujar los archivos a mano, sino capturar el
+estado REAL de prod como línea base con `db pull`:
+
+```bash
+supabase login                                     # navegador, una vez
+supabase link --project-ref lavdttjhrnozboosgeub   # pide password de la BD
+supabase db pull                                   # genera una migración = schema real de prod
+# revisar el archivo generado; de aquí en adelante: nuevo archivo + `supabase db push`
+```
+
+Tras esto, lo ideal es probar cambios en un proyecto de **staging** y recién ahí `db push` a prod.
 
 **Variables de entorno (.env.local):**
 

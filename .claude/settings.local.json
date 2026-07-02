@@ -17,7 +17,9 @@
       "Bash(git commit -m ' *)",
       "Bash(sed -n '/CREATE TABLE IF NOT EXISTS pagos/,/\\);/p' supabase/migrations/001_initial_schema.sql)",
       "Bash(sed -n '/CREATE TABLE IF NOT EXISTS movimientos_fondo/,/\\);/p' supabase/migrations/001_initial_schema.sql)",
-      "Bash(npx supabase *)"
+      "Bash(npx supabase *)",
+      "Bash(ls -la supabase/)",
+      "Bash(ls -la supabase/.temp/)"
     ]
   }
 }
