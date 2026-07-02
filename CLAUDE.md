@@ -51,7 +51,7 @@ El flujo de generación de cuotas siempre muestra un resumen ("Se generarán X c
 | Estilos         | Tailwind CSS                 | Stack del proyecto                         |
 | UI Components   | shadcn/ui                    | Consistencia visual, accesibilidad         |
 | Estado/fetching | @tanstack/react-query v5     | Caché, loading/error states, invalidación  |
-| Formularios     | React Hook Form + Zod        | Validación robusta, tipos seguros          |
+| Formularios     | Validación manual/inline (⚠️) | RHF + Zod están en package.json pero SIN uso real — ver Deuda Técnica |
 | Animaciones     | Framer Motion                | Landing page y transiciones                |
 | Backend         | Supabase (BaaS)              | Auth, DB, RLS, Storage, Edge Functions     |
 | Base de datos   | PostgreSQL vía Supabase      | Relacional, triggers, RLS nativo           |
@@ -181,7 +181,28 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 
 Nuevos ítems pendientes:
 
-- Fase 8: any en TypeScript — SOLUCIONADO (reemplazados por unknown y tipado estricto)
+- Fase 8: `any` explícito en TypeScript — SOLUCIONADO (0 keyword `any`). ⚠️ PERO `tsconfig`
+  tiene `strict:false` / `noImplicitAny:false` / `strictNullChecks:false` → pasan implicit-any y
+  null-unsafety en silencio. Activar `strict` (incremental) es PENDIENTE (auditoría full-stack).
+- Auditoría full-stack (jul 2026) — pendientes abiertos, ordenados por impacto para vender:
+  - Reservas: sin constraint anti-doble-booking (TOCTOU en useCreateReserva). Fix: `EXCLUDE`
+    en Postgres o RPC con `FOR UPDATE`. (cuotas ya es idempotente por UNIQUE(unidad_id,periodo).)
+  - `xlsx@0.18.5` (prototype pollution) en runtime del importador de unidades → migrar al build
+    oficial del CDN de SheetJS. Correr `npm audit` de las vulns de runtime.
+  - Wompi webhook: validar `amount_in_cents == cuota.monto`, firma constant-time, confirmar
+    esquema real de firma contra el spec — antes de activar pagos online.
+  - `vercel.json`: headers seguros añadidos (HSTS, nosniff, X-Frame-Options DENY, Referrer,
+    Permissions). FALTA CSP — probar en un preview de Vercel antes de prod (no se testea en local).
+  - Observabilidad: sin Sentry/logging (1 solo console en src/). Instalar Sentry.
+  - Tests: solo el placeholder `src/test/example.test.ts` (cobertura ~0). Sembrar tests de la
+    lógica financiera (coeficientes, mora, registrar_pago_cuota) antes de vender.
+  - Front: `error.message` crudo al usuario en 6 sitios (enumeración de cuentas en signup);
+    política de contraseña inconsistente (Login 6 vs Registro 8); bundle 2.1 MB sin code-split.
+  - Repo: archivos que no deberían versionarse (`check_db.ts`, `check_tenants.ts`,
+    `eslint_report.json`, `graphify-out/`, `design_temp/`, `*.cjs`); triple lockfile (bun + npm).
+  - Verificado OK (no eran problema): buckets Storage privados (public=false); `/superadmin`
+    ya protegido (SuperAdminDashboard chequea is_super_admin + RLS); índices — falso positivo
+    "cero índices": la BD tenía idx_* a mano; los gaps reales se cerraron en migración 016.
 - Fase 3: generar-cuotas pendiente de mover a Edge Function (idempotencia)
 - Fase 3: pago de cuota — RESUELTO y VERIFICADO EN VIVO (jul 2026). Es atómico vía RPC
   `registrar_pago_cuota` (migración 010): SECURITY DEFINER con autorización explícita (rol
@@ -891,7 +912,7 @@ const obligacionesIniciales = [
 
 ### SIEMPRE:
 
-- TypeScript strict. Cero `any`.
+- TypeScript: cero `any` explícito. ⚠️ NOTA: hoy `tsconfig` tiene `strict: false` (ver Deuda Técnica). Escribir el tipado como si strict estuviera activo — la meta es activarlo.
 - Todo acceso a Supabase desde hooks (`/src/hooks/`), nunca directo en componentes.
 - Formatear moneda con `formatCOP()` de `lib/utils.ts`.
 - Filtrar por `tenant_id` en toda query. Sin excepción.
