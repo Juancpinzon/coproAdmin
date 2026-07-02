@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { calcularMontoCuota } from "@/lib/utils";
 
 export interface CuotaAdmin {
   id: string;
@@ -51,9 +52,7 @@ export function useGenerarCuotas() {
         tenant_id,
         unidad_id: u.id,
         periodo: `${periodo}-01`,
-        monto: modo === 'fija'
-          ? cuota_base
-          : Math.round(cuota_base * (u.coeficiente / 100)),
+        monto: calcularMontoCuota(cuota_base, u.coeficiente, modo),
         estado: "pendiente" as const,
       }));
       const { error } = await supabase

@@ -10,7 +10,24 @@ export const formatCOP = (amount: number): string =>
     style: "currency",
     currency: "COP",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0, // COP no maneja centavos: redondear al peso
   }).format(amount);
+
+/**
+ * Monto de una cuota de administración para una unidad, en pesos (COP no maneja
+ * centavos en el producto, por eso se redondea al entero).
+ * - 'fija': todas las unidades pagan la cuota base.
+ * - 'coeficiente': proporcional al coeficiente de copropiedad (porcentaje, 0–100).
+ * Fuente de verdad del cálculo usado por la generación masiva de cuotas.
+ */
+export function calcularMontoCuota(
+  cuotaBase: number,
+  coeficiente: number,
+  modo: "fija" | "coeficiente",
+): number {
+  if (modo === "fija") return Math.round(cuotaBase);
+  return Math.round(cuotaBase * (coeficiente / 100));
+}
 
 /**
  * Calcula los días hábiles (lunes a viernes) restantes desde 'desde' hasta 'fechaLimite'.
