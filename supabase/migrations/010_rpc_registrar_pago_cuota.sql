@@ -100,12 +100,14 @@ BEGIN
          comprobante_url = p_comprobante_url
    WHERE id = p_cuota_id;
 
-  -- 8. Registrar el ingreso en caja.
+  -- 8. Registrar el ingreso en caja. `fecha` = fecha del pago para que los
+  --    reportes que agrupan por fecha (p.ej. recaudo mensual) incluyan el
+  --    movimiento (antes quedaba NULL y se saltaba de esos agregados).
   INSERT INTO public.movimientos_fondo (
-    tenant_id, tipo, monto, descripcion, categoria, referencia_id
+    tenant_id, tipo, monto, descripcion, categoria, referencia_id, fecha
   ) VALUES (
     v_tenant, 'ingreso', v_monto,
-    'Pago cuota de administración', 'administracion', v_pago_id
+    'Pago cuota de administración', 'administracion', v_pago_id, p_fecha_pago
   );
 
   -- Todo o nada: un solo commit al retornar.
