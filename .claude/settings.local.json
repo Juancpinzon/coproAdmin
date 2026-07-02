@@ -19,7 +19,18 @@
       "Bash(sed -n '/CREATE TABLE IF NOT EXISTS movimientos_fondo/,/\\);/p' supabase/migrations/001_initial_schema.sql)",
       "Bash(npx supabase *)",
       "Bash(ls -la supabase/)",
-      "Bash(ls -la supabase/.temp/)"
+      "Bash(ls -la supabase/.temp/)",
+      "Bash(cat package.json)",
+      "Bash(ls -la vercel.json)",
+      "Bash(cat vercel.json)",
+      "Bash(cat vite.config.ts)",
+      "Bash(grep -iE \"\\\\.env|check_|\\\\.cjs$|regenerador|fix\\\\.|eslint_report|lint_any|design_temp|dist/\")",
+      "Bash(grep -E \"select\\\\\\(\\\\s*[\\\\'\\\\\"\\\\`]\\\\*[\\\\'\\\\\"\\\\`]|select\\\\\\(\\\\s*\\\\\\)\")",
+      "mcp__33433c2f-6c81-480e-9803-8d7574938b11__get_advisors",
+      "Bash(xargs wc -l)",
+      "Bash(npm audit *)",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{try{const j=JSON.parse\\(s\\);console.log\\('TOTALS:',JSON.stringify\\(j.metadata.vulnerabilities\\)\\);const v=j.vulnerabilities||{};for\\(const k in v\\){if\\(['high','critical'].includes\\(v[k].severity\\)\\)console.log\\(v[k].severity.toUpperCase\\(\\),k,'-',\\(v[k].via||[]\\).map\\(x=>typeof x==='string'?x:x.title\\).slice\\(0,1\\).join\\(''\\)\\)}}catch\\(e\\){console.log\\('parse fail',e.message\\)}}\\)\")",
+      "Bash(git rm *)"
     ]
   }
 }

@@ -28,3 +28,13 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Artefactos locales de desarrollo (no versionar)
+check_db.ts
+check_tenants.ts
+fix.cjs
+regenerador.cjs
+eslint_report.json
+lint_any.txt
+design_temp/
+graphify-out/
