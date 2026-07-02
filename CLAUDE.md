@@ -206,9 +206,14 @@ Nuevos ítems pendientes:
   - 013: `miembros_select` tenía una subconsulta inline sobre `miembros` → recursión infinita;
     vuelve a usar la helper SECURITY DEFINER. `miembros_insert` endurecida (solo admin_ph del
     tenant); el cliente ya no se auto-inserta (hueco de aislamiento cerrado).
-- ⚠️ Migraciones aplicadas a mano en el SQL Editor (no vía `db push`): el historial
-  `supabase_migrations` del remoto NO refleja 001–014. NO correr `db push` sin antes
-  `supabase migration repair`, o intentaría re-aplicar todo sobre la BD poblada.
+- Migraciones aplicadas a mano en el SQL Editor (no vía `db push`). El ledger del CLI
+  (`supabase_migrations.schema_migrations`) NO existía en el remoto; se creó y sembró con las
+  14 versiones (001–014) marcadas como aplicadas (jul 2026). Un futuro `db push` ya las ve
+  aplicadas y NO re-corre nada. Pendiente para adoptar el CLI de verdad: `supabase init`
+  (crea `config.toml`) + `supabase login` + `supabase link --project-ref lavdttjhrnozboosgeub`.
+  Regla: seguir aplicando cambios por el SQL Editor y AÑADIR la fila en `schema_migrations`
+  (version = prefijo del archivo, p.ej. '015') al crear cada nueva migración, para no
+  desalinear el historial otra vez.
 - Fase 6: seed_obligaciones_iniciales no lanza excepción si falla — admin puede reintentar desde /cumplimiento
 - Fase 6: Storage bucket 'documentos-legales' — documento reemplazado genera path nuevo con timestamp, anterior queda huérfano. Limpiar en Fase 8.
 - Fase 6: Unidad en TablaConsentimientos muestra primera unidad si miembro tiene múltiples — aceptable MVP, revisar post-lanzamiento
