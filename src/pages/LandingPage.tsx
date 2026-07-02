@@ -6,6 +6,7 @@ import {
   useInView,
   useMotionValue,
   animate,
+  type Variants,
 } from 'framer-motion'
 import { useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -80,7 +81,7 @@ const staggerContainer = (delay = 0) => ({
   visible: { transition: { staggerChildren: 0.08, delayChildren: delay } },
 })
 
-const wordFadeUp = {
+const wordFadeUp: Variants = {
   hidden: { y: 40, opacity: 0, filter: 'blur(8px)' },
   visible: {
     y: 0,
@@ -289,7 +290,7 @@ const features: Feature[] = [
   },
 ]
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 }

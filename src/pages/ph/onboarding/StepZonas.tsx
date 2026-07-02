@@ -1,14 +1,15 @@
 import React from 'react';
-import { OnboardingDraft, ZonaDraft } from './types';
+import { OnboardingDraft, ZonaDraft, SetOnboardingData } from './types';
 import { StepHeader, Button, Card, EmptyState, Field, Input, Ico, Badge, formatCOP, formatNIT, computeDV } from './ui';
 import { sumCoef } from './StepUnidades';
 
 export const newZona = (over = {}): ZonaDraft => ({ id: Math.random().toString(36).slice(2, 9), nombre: '', capacidad: '', apertura: '08:00', cierre: '20:00', ...over });
 export const ZONA_PRESETS = ['Salón social', 'Piscina', 'Gimnasio', 'Zona BBQ', 'Salón infantil', 'Cancha múltiple', 'Coworking', 'Parqueadero visitantes'];
 
-export function StepZonas({ data, setData, compact }: { data: OnboardingDraft, setData: unknown, compact?: boolean }) {
+export function StepZonas({ data, setData, compact }: { data: OnboardingDraft, setData: SetOnboardingData, compact?: boolean }) {
   const zs = data.zonas;
-  const setZs = (fn: unknown) => setData((d: OnboardingDraft) => ({ ...d, zonas: typeof fn === 'function' ? fn(d.zonas) : fn }));
+  const setZs = (fn: ZonaDraft[] | ((prev: ZonaDraft[]) => ZonaDraft[])) =>
+    setData((d: OnboardingDraft) => ({ ...d, zonas: typeof fn === 'function' ? fn(d.zonas) : fn }));
   const add = (nombre = '') => setZs((arr: ZonaDraft[]) => [...arr, newZona({ nombre })]);
   const update = (id: string, nz: ZonaDraft) => setZs((arr: ZonaDraft[]) => arr.map((x) => (x.id === id ? nz : x)));
   const remove = (id: string) => setZs((arr: ZonaDraft[]) => arr.filter((x) => x.id !== id));
@@ -44,9 +45,9 @@ export function StepZonas({ data, setData, compact }: { data: OnboardingDraft, s
                   <input value={z.nombre} placeholder="Nombre de la zona" onChange={(e) => update(z.id, { ...z, nombre: e.target.value })}
                     className="w-full text-[15px] font-semibold text-slate-900 placeholder:text-slate-300 focus:outline-none border-b border-transparent focus:border-slate-200 pb-1" />
                   <div className={`grid gap-2.5 ${compact ? 'grid-cols-1' : 'grid-cols-3'}`}>
-                    <Field label="Capacidad (personas)"><Input className="h-11" inputMode="numeric" value={z.capacidad} placeholder="30" onChange={(e: unknown) => update(z.id, { ...z, capacidad: e.target.value.replace(/\D/g, '') })} /></Field>
-                    <Field label="Apertura"><Input className="h-11" type="time" value={z.apertura} onChange={(e: unknown) => update(z.id, { ...z, apertura: e.target.value })} /></Field>
-                    <Field label="Cierre"><Input className="h-11" type="time" value={z.cierre} onChange={(e: unknown) => update(z.id, { ...z, cierre: e.target.value })} /></Field>
+                    <Field label="Capacidad (personas)"><Input className="h-11" inputMode="numeric" value={z.capacidad} placeholder="30" onChange={(e) => update(z.id, { ...z, capacidad: e.target.value.replace(/\D/g, '') })} /></Field>
+                    <Field label="Apertura"><Input className="h-11" type="time" value={z.apertura} onChange={(e) => update(z.id, { ...z, apertura: e.target.value })} /></Field>
+                    <Field label="Cierre"><Input className="h-11" type="time" value={z.cierre} onChange={(e) => update(z.id, { ...z, cierre: e.target.value })} /></Field>
                   </div>
                 </div>
                 <button onClick={() => remove(z.id)} className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition shrink-0"><Ico.trash className="w-4 h-4" /></button>
@@ -62,7 +63,7 @@ export function StepZonas({ data, setData, compact }: { data: OnboardingDraft, s
 
 /* ════════════════════ RESUMEN FINAL ════════════════════ */
 
-function ReviewBlock({ icon: I, title, onEdit, children }: unknown) {
+function ReviewBlock({ icon: I, title, onEdit, children }: { icon: React.ElementType, title: React.ReactNode, onEdit: () => void, children?: React.ReactNode }) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -75,7 +76,7 @@ function ReviewBlock({ icon: I, title, onEdit, children }: unknown) {
   );
 }
 
-function KV({ k, v, bad }: unknown) {
+function KV({ k, v, bad }: { k: React.ReactNode, v: React.ReactNode, bad?: boolean }) {
   return (
     <div className="flex justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
       <span className="text-[13px] text-slate-400">{k}</span>

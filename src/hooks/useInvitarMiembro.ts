@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { useMiembroContext } from '@/contexts/MiembroContext'
+import { useMiembro } from '@/contexts/MiembroContext'
 
 interface InvitarMiembroParams {
   nombre_completo: string
@@ -11,7 +11,7 @@ interface InvitarMiembroParams {
 
 export function useInvitarMiembro() {
   const qc = useQueryClient()
-  const { miembro } = useMiembroContext()
+  const miembro = useMiembro()
 
   return useMutation({
     mutationFn: async ({

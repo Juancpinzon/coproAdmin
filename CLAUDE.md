@@ -181,9 +181,11 @@ La limpieza de fondos familiares está completa. Quedan dos residuos menores:
 
 Nuevos ítems pendientes:
 
-- Fase 8: `any` explícito en TypeScript — SOLUCIONADO (0 keyword `any`). ⚠️ PERO `tsconfig`
-  tiene `strict:false` / `noImplicitAny:false` / `strictNullChecks:false` → pasan implicit-any y
-  null-unsafety en silencio. Activar `strict` (incremental) es PENDIENTE (auditoría full-stack).
+- Fase 8: TypeScript `strict` — SOLUCIONADO (jul 2026). `tsconfig.app.json` con `strict: true`,
+  `tsc --noEmit` en 0 errores (se corrigieron ~141: catch tipados con `getErrorMessage`, props del
+  wizard tipadas con `OnboardingDraft`/`SetOnboardingData`/`OnboardingErrors`, `MiembroContext`
+  ampliado a `CurrentMiembro | null` + hook `useMiembro()`, `MiembroPH.nombre`→`nombre_completo`).
+  Sin `any`/`@ts-ignore`. Se eliminó `src/pages/Index.tsx` (huérfano que rompía el build).
 - Auditoría full-stack (jul 2026) — pendientes abiertos, ordenados por impacto para vender:
   - Reservas: sin constraint anti-doble-booking (TOCTOU en useCreateReserva). Fix: `EXCLUDE`
     en Postgres o RPC con `FOR UPDATE`. (cuotas ya es idempotente por UNIQUE(unidad_id,periodo).)
@@ -912,7 +914,7 @@ const obligacionesIniciales = [
 
 ### SIEMPRE:
 
-- TypeScript: cero `any` explícito. ⚠️ NOTA: hoy `tsconfig` tiene `strict: false` (ver Deuda Técnica). Escribir el tipado como si strict estuviera activo — la meta es activarlo.
+- TypeScript **strict activado** (`tsconfig.app.json` → `strict: true`). Cero `any`, cero `@ts-ignore`/`@ts-nocheck`. En `catch` usar el helper `getErrorMessage(e)` de `lib/utils.ts`.
 - Todo acceso a Supabase desde hooks (`/src/hooks/`), nunca directo en componentes.
 - Formatear moneda con `formatCOP()` de `lib/utils.ts`.
 - Filtrar por `tenant_id` en toda query. Sin excepción.

@@ -1,6 +1,6 @@
 import { ShieldCheck, FileText, Scale, Loader2 } from 'lucide-react'
 import { useObligaciones } from '@/hooks/useObligaciones'
-import { useMiembroContext } from '@/contexts/MiembroContext'
+import { useMiembro } from '@/contexts/MiembroContext'
 import ObligacionCard from './cumplimiento/ObligacionCard'
 import TablaConsentimientos from './cumplimiento/TablaConsentimientos'
 import TablaARCO from './cumplimiento/TablaARCO'
@@ -38,7 +38,7 @@ function ResumenSemaforo({ total, al_dia, proximo, vencido }: {
 // ─── Página principal ─────────────────────────────────────────────────────────
 
 export default function CumplimientoPage() {
-  const { miembro } = useMiembroContext()
+  const miembro = useMiembro()
   const { data: obligaciones = [], isLoading } = useObligaciones()
 
   const readonly = miembro.rol !== 'admin_ph'

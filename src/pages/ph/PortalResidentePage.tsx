@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { useTenant } from "@/hooks/useTenant";
-import { useMiembroContext } from "@/contexts/MiembroContext";
+import { useMiembro } from "@/contexts/MiembroContext";
 import { useUnidades } from "@/hooks/useUnidades";
 import { useCuotasAdmin } from "@/hooks/useCuotasAdmin";
 import { useZonasComunes } from "@/hooks/useZonasComunes";
@@ -478,7 +478,7 @@ function SeccionARCO() {
 
 export default function PortalResidentePage() {
   const { data: tenant } = useTenant();
-  const { miembro } = useMiembroContext();
+  const miembro = useMiembro();
   const { toast } = useToast();
 
   const { data: unidades = [] } = useUnidades();

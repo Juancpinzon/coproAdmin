@@ -21,8 +21,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/utils";
 import { useTenant } from "@/hooks/useTenant";
-import { useMiembroContext } from "@/contexts/MiembroContext";
+import { useMiembro } from "@/contexts/MiembroContext";
 import { useZonasComunes } from "@/hooks/useZonasComunes";
 import { useUnidades } from "@/hooks/useUnidades";
 import { useReservas, useCreateReserva, useCancelarReserva } from "@/hooks/useReservas";
@@ -32,7 +33,7 @@ const franjas = Array.from({ length: 18 }, (_, i) => i + 6); // 06:00 to 23:00
 
 export default function ReservasPage() {
   const { data: tenant } = useTenant();
-  const { miembro } = useMiembroContext();
+  const miembro = useMiembro();
   const { toast } = useToast();
   
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -82,7 +83,7 @@ export default function ReservasPage() {
       setIsNewOpen(false);
       setNewReserva({ ...newReserva, zona_id: "", unidad_id: "" });
     } catch (error: unknown) {
-      toast({ title: "Error", description: error.message || "Error al crear la reserva", variant: "destructive" });
+      toast({ title: "Error", description: getErrorMessage(error) || "Error al crear la reserva", variant: "destructive" });
     }
   };
 
@@ -95,7 +96,7 @@ export default function ReservasPage() {
       setReservaToCancel(null);
       setMotivoCancelacion("");
     } catch (error: unknown) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: getErrorMessage(error), variant: "destructive" });
     }
   };
 

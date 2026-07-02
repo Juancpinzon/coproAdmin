@@ -5,6 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Extrae un mensaje legible de un valor capturado en un catch (tipo unknown).
+ * Con TypeScript strict, la variable de catch es 'unknown': este helper la
+ * normaliza sin castear a any ni silenciar el compilador.
+ */
+export function getErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : "Ocurrió un error inesperado";
+}
+
 export const formatCOP = (amount: number): string =>
   new Intl.NumberFormat("es-CO", {
     style: "currency",

@@ -110,7 +110,7 @@ export function Field({ label, required, hint, error, htmlFor, children, classNa
   );
 }
 
-export function Input({ className = '', invalid = false, prefix = null, suffix = null, ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean, prefix?: React.ReactNode, suffix?: React.ReactNode }) {
+export function Input({ className = '', invalid = false, prefix = null, suffix = null, ...rest }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'> & { invalid?: boolean, prefix?: React.ReactNode, suffix?: React.ReactNode }) {
   const ring = invalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500/25' : 'border-slate-300 focus:border-primary focus:ring-primary/25';
   if (prefix || suffix) {
     return (

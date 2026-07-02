@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Edit } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils";
 import { formatCOP } from "@/lib/utils";
 
 const catColors: Record<string, string> = {
@@ -74,7 +75,7 @@ export default function PresupuestoPage() {
       }
       setOpen(false);
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" });
     }
   };
 
@@ -84,7 +85,7 @@ export default function PresupuestoPage() {
       await deleteItem.mutateAsync(id);
       toast({ title: "Item eliminado" });
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" });
     }
   };
 
@@ -190,7 +191,7 @@ export default function PresupuestoPage() {
             </div>
             <div className="space-y-2">
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(v: string) => setCategoria(v)}>
+              <Select value={categoria} onValueChange={(v) => setCategoria(v as PresupuestoItem["categoria"])}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
-import { OnboardingDraft } from "./onboarding/types";
+import { OnboardingDraft, OnboardingErrors, OwnerDraft } from "./onboarding/types";
+import { getErrorMessage } from "@/lib/utils";
 import { Ico, Button, onlyDigits } from "./onboarding/ui";
 import { StepConjunto } from "./onboarding/StepConjunto";
 import { StepCuota } from "./onboarding/StepCuota";
@@ -28,8 +29,8 @@ const STEPS = [
 const TOTAL = STEPS.length;
 const REVIEW = TOTAL + 1;
 
-function validateStep(step: number, data: OnboardingDraft) {
-  const e: unknown = {};
+function validateStep(step: number, data: OnboardingDraft): OnboardingErrors {
+  const e: OnboardingErrors = {};
   if (step === 1) {
     const c = data.conjunto;
     if (!c.nombre.trim()) e.nombre = 'Ingresa el nombre del conjunto.';
@@ -47,7 +48,7 @@ function validateStep(step: number, data: OnboardingDraft) {
   return e;
 }
 
-function StepperDesktop({ step, onJump }: unknown) {
+function StepperDesktop({ step, onJump }: { step: number, onJump: (n: number) => void }) {
   return (
     <div className="flex items-center max-w-3xl mx-auto">
       {STEPS.map((s, i) => {
@@ -86,7 +87,7 @@ export default function OnboardingPHPage() {
   
   const [data, setData] = useState<OnboardingDraft>(INITIAL_DRAFT);
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<unknown>({});
+  const [errors, setErrors] = useState<OnboardingErrors>({});
   const [finished, setFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -164,8 +165,9 @@ export default function OnboardingPHPage() {
 
       if (rpcError) throw rpcError;
 
-      // Preparar propietarios únicos
-      const dueños: unknown = {};
+      // Preparar propietarios únicos. db_id se rellena tras insertar el miembro.
+      type DuenoDraft = OwnerDraft & { db_id: string | null };
+      const dueños: Record<string, DuenoDraft> = {};
       data.unidades.forEach(u => {
         if (u.owner?.nombre?.trim()) {
           const key = u.owner.email?.toLowerCase().trim() || u.owner.nombre.trim();
@@ -173,7 +175,7 @@ export default function OnboardingPHPage() {
         }
       });
 
-      const promisesMiembros = Object.values(dueños).map(async (d: unknown) => {
+      const promisesMiembros = Object.values(dueños).map(async (d) => {
         const { data: m, error } = await supabase
           .from('miembros')
           .insert({
@@ -251,7 +253,7 @@ export default function OnboardingPHPage() {
       await qc.invalidateQueries({ queryKey: ["tenant"] });
       navigate("/");
     } catch (error: unknown) {
-      toast.error(error.message || "Error al crear el conjunto");
+      toast.error(getErrorMessage(error) || "Error al crear el conjunto");
     } finally {
       setIsSaving(false);
     }

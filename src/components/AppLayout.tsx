@@ -19,7 +19,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMiembroContext } from "@/contexts/MiembroContext";
+import { useMiembro } from "@/contexts/MiembroContext";
 import { useTenant } from "@/hooks/useTenant";
 import { TrialBanner } from "./shared/TrialBanner";
 
@@ -57,7 +57,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, onLogout }: AppLayoutProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { miembro } = useMiembroContext();
+  const miembro = useMiembro();
   const { data: tenant } = useTenant();
 
   const appName = tenant?.nombre ?? "CoproAdmin";

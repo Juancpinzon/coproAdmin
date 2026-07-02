@@ -49,7 +49,7 @@ function AppContent() {
   const { data: tenant, isLoading: tenantLoading } = useTenant();
   const location = useLocation();
 
-  const onboardingMiembroValue = useMemo(() => ({ miembro: miembro as unknown }), [miembro]);
+  const onboardingMiembroValue = useMemo(() => ({ miembro: miembro ?? null }), [miembro]);
 
   // Solo mostrar el gate global en la carga inicial (sin datos aún).
   // Un refetch o evento de auth en segundo plano deja isLoading en false y

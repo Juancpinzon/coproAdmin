@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // exportación (import dinámico) para no incluirlos en el chunk de Cobros.
 import { format, addMonths } from "date-fns"
 import { es } from "date-fns/locale"
+import { getErrorMessage } from "@/lib/utils"
 
 const generateMonthOptions = () => {
   const options = []
@@ -110,7 +111,7 @@ export default function CobrosPage() {
 
   async function exportarPDF(cuotas: CuotaAdmin[], periodo: string) {
     const { default: jsPDF } = await import('jspdf')
-    await import('jspdf-autotable')
+    const { default: autoTable } = await import('jspdf-autotable')
     const doc = new jsPDF()
     doc.text(`Reporte de Cobros - ${periodo}`, 14, 15)
     
@@ -122,7 +123,7 @@ export default function CobrosPage() {
       c.fecha_pago ?? '-'
     ])
     
-    ;(doc as unknown).autoTable({
+    autoTable(doc, {
       startY: 20,
       head: [['Unidad', 'Tipo', 'Monto', 'Estado', 'Fecha Pago']],
       body: tableData,
@@ -144,7 +145,7 @@ export default function CobrosPage() {
       toast({ title: "Cuotas generadas exitosamente" })
       setOpenGenerateDialog(false)
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" })
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
     }
   }
 
@@ -159,7 +160,7 @@ export default function CobrosPage() {
       toast({ title: "Pago registrado" })
       setOpenPagoDialog(false)
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" })
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
     }
   }
 
@@ -348,7 +349,7 @@ export default function CobrosPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Modo de cobro</Label>
-              <Select value={modo} onValueChange={(val: string) => setModo(val)}>
+              <Select value={modo} onValueChange={(val) => setModo(val as "fija" | "coeficiente")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

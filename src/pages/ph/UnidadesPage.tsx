@@ -312,7 +312,7 @@ export default function UnidadesPage() {
                   <SelectItem value="none">Sin asignar</SelectItem>
                   {miembros.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      {m.nombre}
+                      {m.nombre_completo}
                     </SelectItem>
                   ))}
                 </SelectContent>

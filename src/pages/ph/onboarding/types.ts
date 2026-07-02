@@ -1,3 +1,5 @@
+import type React from 'react';
+
 export interface ConjuntoDraft {
   nombre: string;
   direccion: string;
@@ -37,3 +39,9 @@ export interface OnboardingDraft {
   unidades: UnidadDraft[];
   zonas: ZonaDraft[];
 }
+
+/** Setter del borrador — es el dispatch de useState en OnboardingPHPage. */
+export type SetOnboardingData = React.Dispatch<React.SetStateAction<OnboardingDraft>>;
+
+/** Errores de validación por paso: llave = campo, valor = mensaje. */
+export type OnboardingErrors = Record<string, string>;

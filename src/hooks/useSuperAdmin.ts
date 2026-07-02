@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { getErrorMessage } from '@/lib/utils';
 
 export interface TenantAdmin {
   id: string;
@@ -80,7 +81,7 @@ export function useSuperAdmin() {
       return { success: true };
     } catch (error: unknown) {
       // El error se retorna al llamador para mostrar toast
-      return { success: false, error: error.message };
+      return { success: false, error: getErrorMessage(error) };
     }
   };
 

@@ -30,7 +30,19 @@
       "Bash(xargs wc -l)",
       "Bash(npm audit *)",
       "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{try{const j=JSON.parse\\(s\\);console.log\\('TOTALS:',JSON.stringify\\(j.metadata.vulnerabilities\\)\\);const v=j.vulnerabilities||{};for\\(const k in v\\){if\\(['high','critical'].includes\\(v[k].severity\\)\\)console.log\\(v[k].severity.toUpperCase\\(\\),k,'-',\\(v[k].via||[]\\).map\\(x=>typeof x==='string'?x:x.title\\).slice\\(0,1\\).join\\(''\\)\\)}}catch\\(e\\){console.log\\('parse fail',e.message\\)}}\\)\")",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(tee /tmp/strict_errs.txt)",
+      "Read(//tmp/**)",
+      "Bash(cd \"D:/OneDrive/Desktop/_Archivos/Apps/PH\" && npx tsc --noEmit --strict -p tsconfig.app.json 2>&1 | grep \"TS18046\" > /tmp/ts18046.txt; echo \"=== total TS18046 ===\"; wc -l < /tmp/ts18046.txt; echo \"=== por archivo ===\"; grep -oE \"^src/[^\\(]+\" /tmp/ts18046.txt | sort | uniq -c | sort -rn; echo \"\"; echo \"=== muestra de líneas \\(identificador\\) ===\"; sed -E \"s/.*error TS18046: //\" /tmp/ts18046.txt | sort | uniq -c | sort -rn | head)",
+      "PowerShell(npx tsc --noEmit -p tsconfig.app.json 2>&1)",
+      "PowerShell($out = \"C:\\\\Users\\\\JUANCA~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--OneDrive-Desktop--Archivos-Apps-PH\\\\0d6cab1f-8dcf-4d69-80e4-d82dff71562c\\\\scratchpad\\\\tsc2.txt\"; npx tsc --noEmit -p tsconfig.app.json > $out 2>&1; $c = \\(Get-Content $out | Select-String \"error TS\"\\).Count; \"TOTAL ERRORS: $c\"; Get-Content $out | Select-String \"error TS\" | Select-Object -First 60)",
+      "PowerShell($out = \"C:\\\\Users\\\\JUANCA~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--OneDrive-Desktop--Archivos-Apps-PH\\\\0d6cab1f-8dcf-4d69-80e4-d82dff71562c\\\\scratchpad\\\\tsc3.txt\"; npx tsc --noEmit -p tsconfig.app.json > $out 2>&1; $c = \\(Get-Content $out | Select-String \"error TS\"\\).Count; \"TOTAL ERRORS: $c\"; Get-Content $out | Select-String \"error TS\")",
+      "PowerShell(npx tsc --noEmit -p tsconfig.app.json)",
+      "PowerShell(if \\($?\\) { \"TSC OK - 0 errors\" })",
+      "PowerShell(npm run test 2>&1)",
+      "PowerShell(npm run build 2>&1)",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(echo \"TSC_REAL_EXIT=$?\")"
     ]
   }
 }

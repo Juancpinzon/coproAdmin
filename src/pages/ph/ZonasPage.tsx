@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { getErrorMessage } from "@/lib/utils"
 import { Users, Clock, AlertCircle } from "lucide-react"
 
 export default function ZonasPage() {
@@ -72,7 +73,7 @@ export default function ZonasPage() {
       }
       setOpenDialog(false)
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" })
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
     }
   }
 
@@ -80,7 +81,7 @@ export default function ZonasPage() {
     try {
       await toggleZona.mutateAsync({ id, activa })
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" })
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
     }
   }
 

@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { usePQR, useUpdatePQR } from "@/hooks/usePQR"
+import { usePQR, useUpdatePQR, type PQR } from "@/hooks/usePQR"
+import { getErrorMessage } from "@/lib/utils"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,21 +18,21 @@ export default function PQRPage() {
   const [filtroEstado, setFiltroEstado] = useState<string>("todos")
   const [filtroTipo, setFiltroTipo] = useState<string>("todos")
   const [openDialog, setOpenDialog] = useState(false)
-  const [selectedPQR, setSelectedPQR] = useState<unknown>(null)
+  const [selectedPQR, setSelectedPQR] = useState<PQR | null>(null)
   
   const [estadoEdit, setEstadoEdit] = useState<"abierto" | "en_gestion" | "cerrado">("abierto")
   const [respuestaEdit, setRespuestaEdit] = useState("")
 
-  const filteredPQRs = pqrs.filter((p: unknown) => 
+  const filteredPQRs = pqrs.filter((p) =>
     (filtroEstado === "todos" || p.estado === filtroEstado) &&
     (filtroTipo === "todos" || p.tipo === filtroTipo)
   )
 
-  const abiertos = pqrs.filter((p: unknown) => p.estado === "abierto").length;
-  const enGestion = pqrs.filter((p: unknown) => p.estado === "en_gestion").length;
-  const cerrados = pqrs.filter((p: unknown) => p.estado === "cerrado").length;
+  const abiertos = pqrs.filter((p) => p.estado === "abierto").length;
+  const enGestion = pqrs.filter((p) => p.estado === "en_gestion").length;
+  const cerrados = pqrs.filter((p) => p.estado === "cerrado").length;
 
-  const handleOpenEdit = (pqr: unknown) => {
+  const handleOpenEdit = (pqr: PQR) => {
     setSelectedPQR(pqr)
     setEstadoEdit(pqr.estado)
     setRespuestaEdit(pqr.respuesta || "")
@@ -49,7 +50,7 @@ export default function PQRPage() {
       toast({ title: "PQR actualizado exitosamente" })
       setOpenDialog(false)
     } catch (e: unknown) {
-      toast({ title: "Error", description: e.message, variant: "destructive" })
+      toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
     }
   }
 
@@ -145,7 +146,7 @@ export default function PQRPage() {
                 <div className="space-y-4 pt-4 border-t">
                   <div className="space-y-2">
                     <Label>Estado de gestión</Label>
-                    <Select value={estadoEdit} onValueChange={(v: string) => setEstadoEdit(v)}>
+                    <Select value={estadoEdit} onValueChange={(v) => setEstadoEdit(v as "abierto" | "en_gestion" | "cerrado")}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -183,7 +184,7 @@ export default function PQRPage() {
                             toast({ title: "PQR cerrado exitosamente" })
                             setOpenDialog(false)
                           } catch (e: unknown) {
-                            toast({ title: "Error", description: e.message, variant: "destructive" })
+                            toast({ title: "Error", description: getErrorMessage(e), variant: "destructive" })
                           }
                         }} 
                         disabled={updatePQR.isPending} 
